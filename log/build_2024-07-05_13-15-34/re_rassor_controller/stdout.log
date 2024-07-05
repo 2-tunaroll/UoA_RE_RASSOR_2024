@@ -1,0 +1,16 @@
+running develop
+running egg_info
+writing re_rassor_controller.egg-info/PKG-INFO
+writing dependency_links to re_rassor_controller.egg-info/dependency_links.txt
+writing entry points to re_rassor_controller.egg-info/entry_points.txt
+writing requirements to re_rassor_controller.egg-info/requires.txt
+writing top-level names to re_rassor_controller.egg-info/top_level.txt
+reading manifest file 're_rassor_controller.egg-info/SOURCES.txt'
+writing manifest file 're_rassor_controller.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re-rassor-controller.egg-link (link to .)
+
+Installed /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller
+running symlink_data
+symbolically linking /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/resource/re_rassor_controller -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/ament_index/resource_index/packages
+symbolically linking /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/package.xml -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/re_rassor_controller

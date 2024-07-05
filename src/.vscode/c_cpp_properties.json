@@ -1,0 +1,46 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/teresavkelly/ros2_ws/install/tutorial_interfaces/include/**",
+        "/home/teresavkelly/ros2_ws/install/turtlesim/include/**",
+        "/home/teresavkelly/ros2_ws/install/more_interfaces/include/**",
+        "/home/teresavkelly/ros2_ws/install/examples_rclcpp_cbg_executor/include/**",
+        "/home/teresavkelly/rosbot_ws/install/velocity_controllers/include/**",
+        "/home/teresavkelly/rosbot_ws/install/tricycle_steering_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/tricycle_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/bicycle_steering_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/ackermann_steering_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/steering_controllers_library/include/**",
+        "/home/teresavkelly/rosbot_ws/install/rosbot_hardware_interfaces/include/**",
+        "/home/teresavkelly/rosbot_ws/install/range_sensor_broadcaster/include/**",
+        "/home/teresavkelly/rosbot_ws/install/position_controllers/include/**",
+        "/home/teresavkelly/rosbot_ws/install/micro_ros_agent/include/**",
+        "/home/teresavkelly/rosbot_ws/install/micro_ros_msgs/include/**",
+        "/home/teresavkelly/rosbot_ws/install/mecanum_drive_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/admittance_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/joint_trajectory_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/joint_state_broadcaster/include/**",
+        "/home/teresavkelly/rosbot_ws/install/imu_sensor_broadcaster/include/**",
+        "/home/teresavkelly/rosbot_ws/install/gripper_controllers/include/**",
+        "/home/teresavkelly/rosbot_ws/install/effort_controllers/include/**",
+        "/home/teresavkelly/rosbot_ws/install/forward_command_controller/include/**",
+        "/home/teresavkelly/rosbot_ws/install/force_torque_sensor_broadcaster/include/**",
+        "/home/teresavkelly/rosbot_ws/install/diff_drive_controller/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/teresavkelly/re_rassor/ros2_ws/src/re_rassor_controller/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

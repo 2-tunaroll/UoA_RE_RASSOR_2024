@@ -1,0 +1,25 @@
+[2.379s] Invoking command in '/home/teresavkelly/re_rassor/ros2_ws/src/re_rassor_sensors': PS1=\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ PYTHONPATH=/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/prefix_override:/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/re_rassor_sensors build --build-base /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/build install --record /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/install.log --single-version-externally-managed install_data
+[2.984s] running egg_info
+[2.985s] writing ../../build/re_rassor_sensors/re_rassor_sensors.egg-info/PKG-INFO
+[2.986s] writing dependency_links to ../../build/re_rassor_sensors/re_rassor_sensors.egg-info/dependency_links.txt
+[2.987s] writing entry points to ../../build/re_rassor_sensors/re_rassor_sensors.egg-info/entry_points.txt
+[2.987s] writing requirements to ../../build/re_rassor_sensors/re_rassor_sensors.egg-info/requires.txt
+[2.987s] writing top-level names to ../../build/re_rassor_sensors/re_rassor_sensors.egg-info/top_level.txt
+[2.992s] reading manifest file '../../build/re_rassor_sensors/re_rassor_sensors.egg-info/SOURCES.txt'
+[2.995s] writing manifest file '../../build/re_rassor_sensors/re_rassor_sensors.egg-info/SOURCES.txt'
+[2.995s] running build
+[2.996s] running build_py
+[2.996s] copying re_rassor_sensors/accelerometer_node.py -> /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/build/lib/re_rassor_sensors
+[2.996s] running install
+[2.996s] running install_lib
+[2.998s] copying /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/build/lib/re_rassor_sensors/accelerometer_node.py -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/python3.10/site-packages/re_rassor_sensors
+[3.000s] byte-compiling /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/python3.10/site-packages/re_rassor_sensors/accelerometer_node.py to accelerometer_node.cpython-310.pyc
+[3.001s] running install_data
+[3.002s] copying package.xml -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/share/re_rassor_sensors
+[3.002s] running install_egg_info
+[3.005s] removing '/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/python3.10/site-packages/re_rassor_sensors-0.0.0-py3.10.egg-info' (and everything under it)
+[3.007s] Copying ../../build/re_rassor_sensors/re_rassor_sensors.egg-info to /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/python3.10/site-packages/re_rassor_sensors-0.0.0-py3.10.egg-info
+[3.010s] running install_scripts
+[3.059s] Installing accelerometer_node script to /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/re_rassor_sensors
+[3.060s] writing list of installed files to '/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/install.log'
+[3.148s] Invoked command in '/home/teresavkelly/re_rassor/ros2_ws/src/re_rassor_sensors' returned '0': PS1=\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ PYTHONPATH=/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/prefix_override:/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_sensors/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/re_rassor_sensors build --build-base /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/build install --record /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_sensors/install.log --single-version-externally-managed install_data

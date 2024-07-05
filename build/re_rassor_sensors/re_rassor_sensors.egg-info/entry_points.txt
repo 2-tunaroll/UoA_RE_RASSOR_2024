@@ -1,0 +1,3 @@
+[console_scripts]
+accelerometer_node = re_rassor_sensors.accelerometer_node:main
+

@@ -1,0 +1,31 @@
+running egg_info
+creating ../../build/re_rassor_controller/re_rassor_controller.egg-info
+writing ../../build/re_rassor_controller/re_rassor_controller.egg-info/PKG-INFO
+writing dependency_links to ../../build/re_rassor_controller/re_rassor_controller.egg-info/dependency_links.txt
+writing entry points to ../../build/re_rassor_controller/re_rassor_controller.egg-info/entry_points.txt
+writing requirements to ../../build/re_rassor_controller/re_rassor_controller.egg-info/requires.txt
+writing top-level names to ../../build/re_rassor_controller/re_rassor_controller.egg-info/top_level.txt
+writing manifest file '../../build/re_rassor_controller/re_rassor_controller.egg-info/SOURCES.txt'
+reading manifest file '../../build/re_rassor_controller/re_rassor_controller.egg-info/SOURCES.txt'
+writing manifest file '../../build/re_rassor_controller/re_rassor_controller.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build
+creating /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build/lib
+creating /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build/lib/re_rassor_controller
+copying re_rassor_controller/__init__.py -> /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build/lib/re_rassor_controller
+running install
+running install_lib
+creating /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re_rassor_controller
+copying /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build/lib/re_rassor_controller/__init__.py -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re_rassor_controller
+byte-compiling /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re_rassor_controller/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/ament_index
+creating /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/ament_index/resource_index
+creating /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/ament_index/resource_index/packages
+copying resource/re_rassor_controller -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/ament_index/resource_index/packages
+copying package.xml -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/re_rassor_controller
+running install_egg_info
+Copying ../../build/re_rassor_controller/re_rassor_controller.egg-info to /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re_rassor_controller-0.0.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/install.log'

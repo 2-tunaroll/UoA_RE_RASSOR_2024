@@ -1,0 +1,18 @@
+[2.285s] Invoking command in '/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller': PYTHONPATH=/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/prefix_override:/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py develop --editable --build-directory /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build --no-deps symlink_data --force
+[2.951s] running develop
+[3.371s] running egg_info
+[3.372s] writing re_rassor_controller.egg-info/PKG-INFO
+[3.373s] writing dependency_links to re_rassor_controller.egg-info/dependency_links.txt
+[3.373s] writing entry points to re_rassor_controller.egg-info/entry_points.txt
+[3.373s] writing requirements to re_rassor_controller.egg-info/requires.txt
+[3.374s] writing top-level names to re_rassor_controller.egg-info/top_level.txt
+[3.377s] reading manifest file 're_rassor_controller.egg-info/SOURCES.txt'
+[3.380s] writing manifest file 're_rassor_controller.egg-info/SOURCES.txt'
+[3.384s] running build_ext
+[3.385s] Creating /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re-rassor-controller.egg-link (link to .)
+[3.386s] 
+[3.386s] Installed /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller
+[3.387s] running symlink_data
+[3.387s] symbolically linking /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/resource/re_rassor_controller -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/ament_index/resource_index/packages
+[3.388s] symbolically linking /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/package.xml -> /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/share/re_rassor_controller
+[3.495s] Invoked command in '/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller' returned '0': PYTHONPATH=/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/prefix_override:/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py develop --editable --build-directory /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build --no-deps symlink_data --force

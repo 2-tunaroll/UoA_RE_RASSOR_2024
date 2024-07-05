@@ -1,0 +1,20 @@
+[2.362s] Invoking command in '/home/teresavkelly/re_rassor/ros2_ws/src/re_rassor_controller': PS1=\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ PYTHONPATH=/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/prefix_override:/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/re_rassor_controller build --build-base /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build install --record /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/install.log --single-version-externally-managed install_data
+[2.969s] running egg_info
+[2.970s] writing ../../build/re_rassor_controller/re_rassor_controller.egg-info/PKG-INFO
+[2.972s] writing dependency_links to ../../build/re_rassor_controller/re_rassor_controller.egg-info/dependency_links.txt
+[2.972s] writing entry points to ../../build/re_rassor_controller/re_rassor_controller.egg-info/entry_points.txt
+[2.973s] writing requirements to ../../build/re_rassor_controller/re_rassor_controller.egg-info/requires.txt
+[2.973s] writing top-level names to ../../build/re_rassor_controller/re_rassor_controller.egg-info/top_level.txt
+[2.978s] reading manifest file '../../build/re_rassor_controller/re_rassor_controller.egg-info/SOURCES.txt'
+[2.980s] writing manifest file '../../build/re_rassor_controller/re_rassor_controller.egg-info/SOURCES.txt'
+[2.980s] running build
+[2.981s] running build_py
+[2.981s] running install
+[2.982s] running install_lib
+[2.985s] running install_data
+[2.985s] running install_egg_info
+[2.990s] removing '/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re_rassor_controller-0.0.0-py3.10.egg-info' (and everything under it)
+[2.992s] Copying ../../build/re_rassor_controller/re_rassor_controller.egg-info to /home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages/re_rassor_controller-0.0.0-py3.10.egg-info
+[2.994s] running install_scripts
+[3.040s] writing list of installed files to '/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/install.log'
+[3.128s] Invoked command in '/home/teresavkelly/re_rassor/ros2_ws/src/re_rassor_controller' returned '0': PS1=\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ PYTHONPATH=/home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/prefix_override:/home/teresavkelly/re_rassor/ros2_ws/install/re_rassor_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/re_rassor_controller build --build-base /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/build install --record /home/teresavkelly/re_rassor/ros2_ws/build/re_rassor_controller/install.log --single-version-externally-managed install_data
