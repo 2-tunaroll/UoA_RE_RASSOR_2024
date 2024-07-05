@@ -1,0 +1,15 @@
+# Ignore build and development files
+build/
+install/
+log/
+.vscode/
+.clangd
+.ament/
+*~
+*.log
+*.db
+.pytest_cache/
+.vscode/
+.clangd
+.clang-format
+.clangd
