@@ -19,7 +19,8 @@ setup(
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
-        'console_scripts': ["accelerometer_node = re_rassor_sensors.accelerometer_node:main"
+        'console_scripts': ["accelerometer = re_rassor_sensors.accelerometer_node:main",
+                            "temperature = re_rassor_sensors.temperature_node:main"
         ],
     },
 )
