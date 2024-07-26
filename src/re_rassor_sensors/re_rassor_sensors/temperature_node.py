@@ -2,8 +2,8 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64
 
-from .PiicoDev_TMP117 import PiicoDev_TMP117
-from .PiicoDev_Unified import sleep_ms 
+from re_rassor_sensors.utils.PiicoDev_TMP117 import PiicoDev_TMP117
+from re_rassor_sensors.utils.PiicoDev_Unified import sleep_ms 
 
 class TemperatureNode(Node):
     def __init__(self):
