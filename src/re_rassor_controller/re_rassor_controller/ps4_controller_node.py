@@ -1,13 +1,21 @@
 import socket
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
+from geometry_msgs.msg import Twist
 import json
+import re_rassor_controller.lib.controller_input_defs as inputs
 
 class JsonPublisher(Node):
     def __init__(self):
+
         super().__init__('json_publisher')
-        self.publisher_ = self.create_publisher(String, 'controller_state', 10)
+
+        self.publisher_ = self.create_publisher(String, 'controller_state', 100)
+
+        self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
+        # self.speed_mode_publisher = self.create_publisher(Float32, 'speed_mode')
+
         self.receive_data()
 
     def receive_data(self):
@@ -37,10 +45,17 @@ class JsonPublisher(Node):
                             while b'\n' in buffer:
                                 msg_data, buffer = self.extract_json(buffer)
                                 if msg_data:
-                                    ros_msg = String()
-                                    ros_msg.data = msg_data
-                                    self.publisher_.publish(ros_msg)
-                                    self.get_logger().info(f'Published raw JSON: {ros_msg.data}')
+
+                                    data_array = json.loads(msg_data)
+                    
+                                    # self.get_velocity_commands(msg_data)
+                                    # ros_msg = String()
+                                    # ros_msg.data = msg_data
+                                    # self.publisher_.publish(ros_msg)
+                                    # self.get_velocity_commands(ros_msg.data)
+                                    self.get_velocity_commands(data_array)
+
+                                    # self.get_logger().info(f'Published raw JSON: {ros_msg.data}')
 
                 except socket.error as e:
                     self.get_logger().error(f'Socket error: {e}')
@@ -56,6 +71,23 @@ class JsonPublisher(Node):
             return complete_json, remaining_buffer
         else:
             return None, buffer
+        
+    def get_velocity_commands(self, data):
+
+        velocity_msg = Twist()
+
+        # must be pressing L2 and R2 to deliver power
+        if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
+
+            # forward and back
+            if data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.05 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.05:
+                velocity_msg.linear.x = data['axes'][inputs.LEFT_JOY_VERTICAL]
+
+            # left and right
+            if (data['axes'][inputs.LEFT_JOY_HORIZONTAL] > 0.05 or data['axes'][inputs.LEFT_JOY_HORIZONTAL] < -0.05):
+                velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
+
+        self.velocity_publisher_.publish(velocity_msg)
 
 def main(args=None):
     rclpy.init(args=args)
