@@ -122,6 +122,29 @@ class JsonPublisher(Node):
             self.t_joint_msg.data[2] = data['buttons'][inputs.R1] # down
         
         self.t_joint_publisher_.publish(self.t_joint_msg)
+        
+    def get_tool_commands(self, data):
+        
+        current_time = time.time()
+        debounce_time = 0.2 # seconds
+
+        # tool interchange
+        if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.circle_last_pressed_time > debounce_time):
+            self.tool_interchange_msg = data['buttons'][inputs.CROSS]
+
+        # bucket drum
+        # must be pressing L2 and R2 to deliver power
+        if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
+            
+            self.bucket_drum_msg.data[0] = data['buttons'][inputs.UP] # up
+            self.bucket_drum_msg.data[1] = data['buttons'][inputs.DOWN] # down
+        
+
+        # self.t_joint_publisher_.publish(self.t_joint_msg)
+        
+
+
+
 
 
 def main(args=None):
