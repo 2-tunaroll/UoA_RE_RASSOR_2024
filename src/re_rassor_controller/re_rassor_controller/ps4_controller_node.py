@@ -1,14 +1,14 @@
 import socket
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Int32MultiArray, Bool
+from std_msgs.msg import String, Int32MultiArray, Int16
 
 from geometry_msgs.msg import Twist
 import json
 import re_rassor_controller.lib.controller_input_defs as inputs
 import time
 
-class JsonPublisher(Node):
+class ControllerCommandPublisher(Node):
     def __init__(self):
 
         super().__init__('json_publisher')
@@ -18,8 +18,8 @@ class JsonPublisher(Node):
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(Int32MultiArray, 't_joint_cmd', 100)
         self.bucket_drum_publisher_ = self.create_publisher(Int32MultiArray, 'bucket_drum_cmd', 100)
-        self.tool_interchange_publisher_ = self.create_publisher(Bool, 'tool_interchange_cmd', 100)
-        self.vibrating_motor_publisher_ = self.create_publisher(Bool, 'vibrating_motor_cmd', 100)
+        self.tool_interchange_publisher_ = self.create_publisher(Int16, 'tool_interchange_cmd', 100)
+        self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         # self.speed_mode_publisher = self.create_publisher(Float32, 'speed_mode')
 
         self.debounce_time = 0.5 #seconds
@@ -30,6 +30,9 @@ class JsonPublisher(Node):
         self.t_joint_msg = Int32MultiArray()
         self.t_joint_msg.data = [0, 0, 0]
 
+
+        self.bucket_drum_msg = Int32MultiArray()
+        self.t_joint_msg.data = [0, 0]
 
         self.receive_data()
 
@@ -68,8 +71,9 @@ class JsonPublisher(Node):
                                     data_array = json.loads(msg_data)
 
                                     # convert raw json strings to meaningful commands
-                                    self.get_robot_commands(data_array)
+                                    self.get_driving_commands(data_array)
                                     self.get_t_joint_commands(data_array)
+                                    self.get_tool_commands(data_array)
 
                 except socket.error as e:
                     self.get_logger().error(f'Socket error: {e}')
@@ -86,7 +90,7 @@ class JsonPublisher(Node):
         else:
             return None, buffer
         
-    def get_robot_commands(self, data):
+    def get_driving_commands(self, data):
 
         velocity_msg = Twist()
 
@@ -129,13 +133,14 @@ class JsonPublisher(Node):
     def get_tool_commands(self, data):
         
         current_time = time.time()
-        debounce_time = 0.2 # seconds
+        debounce_time = 0.2 # seconds\
 
-        vibrating_motor_msg = Bool()
+        tool_interchange_msg = Int16()
+        vibrating_motor_msg = Int16()
 
         # tool interchange
         if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.circle_last_pressed_time > debounce_time):
-            self.tool_interchange_msg = data['buttons'][inputs.CROSS]
+            tool_interchange_msg = data['buttons'][inputs.CROSS]
 
         # must be pressing L2 and R2 to deliver power
         if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
@@ -150,14 +155,12 @@ class JsonPublisher(Node):
         
         # publish commands
         self.bucket_drum_publisher_.publish(self.bucket_drum_msg)
-        self.tool_interchange_publisher_.publish(self.tool_interchange_msg)
+        self.tool_interchange_publisher_.publish(tool_interchange_msg)
         self.vibrating_motor_publisher_.publish(vibrating_motor_msg)
-        
-        # self.t_joint_publisher_.publish(self.t_joint_msg)
-   
+           
 def main(args=None):
     rclpy.init(args=args)
-    node = JsonPublisher()
+    node = ControllerCommandPublisher()
     
     rclpy.spin(node)
     
