@@ -1,7 +1,7 @@
 import socket
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Int32MultiArray
+from std_msgs.msg import String, Int32MultiArray, Bool
 
 from geometry_msgs.msg import Twist
 import json
@@ -13,10 +13,13 @@ class JsonPublisher(Node):
 
         super().__init__('json_publisher')
 
-        self.publisher_ = self.create_publisher(String, 'controller_state', 100)
+        self.controller_state_publisher_ = self.create_publisher(String, 'controller_state', 100)
 
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(Int32MultiArray, 't_joint_cmd', 100)
+        self.bucket_drum_publisher_ = self.create_publisher(Int32MultiArray, 'bucket_drum_cmd', 100)
+        self.tool_interchange_publisher_ = self.create_publisher(Bool, 'tool_interchange_cmd', 100)
+        self.vibrating_motor_publisher_ = self.create_publisher(Bool, 'vibrating_motor_cmd', 100)
         # self.speed_mode_publisher = self.create_publisher(Float32, 'speed_mode')
 
         self.debounce_time = 0.5 #seconds
@@ -60,7 +63,7 @@ class JsonPublisher(Node):
 
                                     controller_msg = String()
                                     controller_msg.data = msg_data
-                                    self.publisher_.publish(controller_msg)
+                                    self.controller_state_publisher_.publish(controller_msg)
                                     
                                     data_array = json.loads(msg_data)
 
@@ -128,25 +131,30 @@ class JsonPublisher(Node):
         current_time = time.time()
         debounce_time = 0.2 # seconds
 
+        vibrating_motor_msg = Bool()
+
         # tool interchange
         if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.circle_last_pressed_time > debounce_time):
             self.tool_interchange_msg = data['buttons'][inputs.CROSS]
 
-        # bucket drum
         # must be pressing L2 and R2 to deliver power
         if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
             
+            # bucket drum
             self.bucket_drum_msg.data[0] = data['buttons'][inputs.UP] # up
             self.bucket_drum_msg.data[1] = data['buttons'][inputs.DOWN] # down
-        
 
+            # vibrating motor
+            vibrating_motor_msg.data = data['buttons'][inputs.TRIANGLE]
+
+        
+        # publish commands
+        self.bucket_drum_publisher_.publish(self.bucket_drum_msg)
+        self.tool_interchange_publisher_.publish(self.tool_interchange_msg)
+        self.vibrating_motor_publisher_.publish(vibrating_motor_msg)
+        
         # self.t_joint_publisher_.publish(self.t_joint_msg)
-        
-
-
-
-
-
+   
 def main(args=None):
     rclpy.init(args=args)
     node = JsonPublisher()
