@@ -20,7 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': ["accelerometer = re_rassor_sensors.accelerometer_node:main",
-                            "temperature = re_rassor_sensors.temperature_node:main"
+                            "external_temperature = re_rassor_sensors.external_temperature_node:main",
+                            "internal_temperature = re_rassor_sensors.internal_temperature_node:main",
+
         ],
     },
 )
