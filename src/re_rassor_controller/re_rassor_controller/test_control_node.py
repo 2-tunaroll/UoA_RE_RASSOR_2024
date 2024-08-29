@@ -2,8 +2,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
-import json
-import time
+
 import re_rassor_controller.lib.controller_input_defs as inputs
 
 class TestControlNode(Node):
@@ -29,7 +28,7 @@ class TestControlNode(Node):
         z_cmd = msg.angular.z
         
         # constants
-        speed_multiplier = 1
+        speed_multiplier = 10
         turn_threshold = 0.2
         turn_component = 0
 

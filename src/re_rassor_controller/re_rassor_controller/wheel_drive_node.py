@@ -108,7 +108,7 @@ class WheelMotorDrive(Node):
         z_cmd = msg.angular.z
         
         # constants
-        speed_multiplier = 0.1
+        speed_multiplier = 10 # percent of max velocity
         turn_threshold = 0.2
         turn_component = 0
 
