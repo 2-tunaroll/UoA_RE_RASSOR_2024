@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
 import time
-from re_rassor_sensors.utils.DFRobot_LIS2DW12 import DFRobot_LIS2DW12_I2C
+from re_rassor_sensors.lib.DFRobot_LIS2DW12 import DFRobot_LIS2DW12_I2C
 
 class AccelerometerNode(Node):
     def __init__(self):
