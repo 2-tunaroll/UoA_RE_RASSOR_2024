@@ -15,11 +15,15 @@ def generate_launch_description():
             name='accelerometer'),
         Node(
             package='re_rassor_sensors',
-            executable='internal_temperature',
-            name='internal_temperature'),
-        Node(
-            package='re_rassor_sensors',
             executable='external_temperature',
             name='external_temperature'),
+        Node(
+            package='re_rassor_controller',
+            executable='controller',
+            name='controller'),
+        Node(
+            package='re_rassor_controller',
+            executable='test',
+            name='test'),
   ])
 

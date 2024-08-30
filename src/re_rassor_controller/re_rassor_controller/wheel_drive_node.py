@@ -12,9 +12,8 @@ class WheelMotorDrive(Node):
 
         super().__init__('wheel_drive')
 
-        self.left_board = DFRobot_DC_Motor_IIC(1, 0x20)
-        self.right_board = DFRobot_DC_Motor_IIC(1, 0x21)
-
+        self.left_board = DFRobot_DC_Motor_IIC(1, 0x10)
+        self.right_board = DFRobot_DC_Motor_IIC(1, 0x12)
 
         self.initialise_boards(self.left_board, self.right_board)
 
@@ -136,40 +135,40 @@ class WheelMotorDrive(Node):
         board = self.left_board
 
         if vel > 0:
-            board.motor_movement([board.M1], board.CW, vel)
+            board.motor_movement([board.M1], board.CCW, vel)
 
         else:
-            board.motor_movement([board.M1], board.CCW, abs(vel))
+            board.motor_movement([board.M1], board.CW, abs(vel))
 
     def drive_back_left(self, vel):
         
         board = self.left_board
 
         if vel > 0:
-            board.motor_movement([board.M2], board.CW, vel)
+            board.motor_movement([board.M2], board.CCW, vel)
 
         else:
-            board.motor_movement([board.M2], board.CCW, abs(vel))
+            board.motor_movement([board.M2], board.CW, abs(vel))
 
     def drive_front_right(self, vel):
         
         board = self.right_board
 
         if vel > 0:
-            board.motor_movement([board.M1], board.CCW, vel)
+            board.motor_movement([board.M1], board.CW, vel)
 
         else:
-            board.motor_movement([board.M1], board.CW, abs(vel))
+            board.motor_movement([board.M1], board.CCW, abs(vel))
 
     def drive_back_right(self, vel):
         
         board = self.right_board
 
         if vel > 0:
-            board.motor_movement([board.M2], board.CCW, vel)
+            board.motor_movement([board.M2], board.CW, vel)
 
         else:
-            board.motor_movement([board.M2], board.CW, abs(vel))
+            board.motor_movement([board.M2], board.CCW, abs(vel))
 
 
 def main(args=None):
