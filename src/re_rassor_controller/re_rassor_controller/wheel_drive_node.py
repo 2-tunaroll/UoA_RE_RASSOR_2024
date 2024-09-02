@@ -5,6 +5,7 @@ from adafruit_ina260 import INA260
 import board
 import rclpy
 import time
+from math import pi
 
 from re_rassor_controller.lib.DFRobot_RaspberryPi_DC_Motor import DFRobot_DC_Motor_IIC
 
@@ -66,13 +67,21 @@ class WheelMotorDrive(Node):
         
     def listener_callback(self, msg):
 
-        self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
+        current_time = time.time()
 
-        while self.ina260.current <= 2000:
+        # only send commands every 0.5 s
+        if (current_time - self.last_called_time) > 0.5:
+
+            self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
+            self.last_called_time = current_time
+
             self.drive_front_left(self.v_front_left)
             self.drive_back_left(self.v_back_left)
             self.drive_front_right(self.v_front_right)
             self.drive_back_right(self.v_back_right)
+
+        # get velocity feedback from encoders
+        self.get_velocity_feedback()
 
     def calculate_motor_velocities(self, msg):
 
@@ -170,6 +179,19 @@ class WheelMotorDrive(Node):
 
         else:
             board.motor_movement([board.M2], board.CW, abs(vel))
+
+    def get_velocity_feedback(self):
+
+        left_board = self.left_board
+        right_board = self.right_board
+
+        left_front_speed, left_back_speed = left_board.get_encoder_speed(board.ALL)
+
+        right_front_speed, right_back_speed = right_board.get_encoder_speed(board.ALL)
+
+        # convert from rpm to m/s
+        left_front_speed_ms = 0.11 * left_front_speed * 2*pi/60
+
 
 def main(args=None):
 
