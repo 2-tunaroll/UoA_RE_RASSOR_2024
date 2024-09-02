@@ -17,12 +17,12 @@ class WheelMotorDrive(Node):
         self.initialise_boards(self.left_board, self.right_board)
 
         # store previous speed values
-        self.prev_v_front_left = 0
-        self.prev_v_back_left = 0
-        self.prev_v_front_right = 0 
-        self.prev_v_back_right = 0
+        self.v_front_left = 0
+        self.v_back_left = 0
+        self.v_front_right = 0
+        self.v_back_right = 0
 
-        self.acceleration_threshold = 2
+        self.last_called_time = time.time()
 
         # subscribe to velocity cmds
         self.subscription = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
@@ -59,12 +59,12 @@ class WheelMotorDrive(Node):
         
     def listener_callback(self, msg):
 
-        velocities = self.calculate_motor_velocities(msg)
+        self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
 
-        self.drive_front_left(velocities[0])
-        self.drive_back_left(velocities[1])
-        self.drive_front_right(velocities[2])
-        self.drive_back_right(velocities[3])
+        self.drive_front_left(self.v_front_left)
+        self.drive_back_left(self.v_back_left)
+        self.drive_front_right(self.v_front_right)
+        self.drive_back_right(self.v_back_right)
 
     def calculate_motor_velocities(self, msg):
 
@@ -86,45 +86,46 @@ class WheelMotorDrive(Node):
                 turn_component = z_cmd + turn_threshold
 
         # left wheels
-        v_front_left = (0.5*x_cmd - 0.5*turn_component)*speed_multiplier
-        v_back_left = (0.5*x_cmd - 0.5*turn_component)*speed_multiplier
-
-        # self.prev_v_front_left = v_front_left
-        # self.prev_v_back_left = v_front_left
+        raw_v_front_left = (-0.5*x_cmd + 0.5*turn_component)*speed_multiplier
+        raw_v_back_left = (-0.5*x_cmd + 0.5*turn_component)*speed_multiplier
 
         # right wheels
-        v_front_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
-        v_back_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
+        raw_v_front_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
+        raw_v_back_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
 
+        # ease the speeds
+        self.v_front_left = self.ease_speed(raw_v_front_left, self.v_front_left)
+        self.v_back_left = self.ease_speed(raw_v_back_left, self.v_back_left)
+        self.v_front_right = self.ease_speed(raw_v_front_right, self.v_front_right)
+        self.v_back_right = self.ease_speed(raw_v_back_right, self.v_back_right)
+
+        return self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right
     
-        # self.prev_v_front_left = v_front_left
-        # self.prev_v_back_left = v_front_left
+    def ease_speed(self, new_speed, prev_speed):
 
-        return v_front_left, v_back_left, v_front_right, v_back_right
+        max_delta = 10
+
+        if abs(new_speed - prev_speed) >= max_delta:
+
+            if new_speed > prev_speed:
+                # speeding up
+                corrected_speed = prev_speed + max_delta
+                print(f"corrected_speed: {corrected_speed}")
+
+            else:
+                # slowing down
+                corrected_speed = prev_speed - max_delta
+                print(f"corrected_speed: {corrected_speed}")
+
+        else:
+            corrected_speed = new_speed
+
+        # update the speed and return
+        return corrected_speed
 
     def drive_front_left(self, vel):
 
         board = self.left_board
-
-        if vel > 0:
-            board.motor_movement([board.M1], board.CCW, vel)
-
-        else:
-            board.motor_movement([board.M1], board.CW, abs(vel))
-
-    def drive_back_left(self, vel):
-        
-        board = self.left_board
-
-        if vel > 0:
-            board.motor_movement([board.M2], board.CCW, vel)
-
-        else:
-            board.motor_movement([board.M2], board.CW, abs(vel))
-
-    def drive_front_right(self, vel):
-        
-        board = self.right_board
 
         if vel > 0:
             board.motor_movement([board.M1], board.CW, vel)
@@ -132,9 +133,9 @@ class WheelMotorDrive(Node):
         else:
             board.motor_movement([board.M1], board.CCW, abs(vel))
 
-    def drive_back_right(self, vel):
+    def drive_back_left(self, vel):
         
-        board = self.right_board
+        board = self.left_board
 
         if vel > 0:
             board.motor_movement([board.M2], board.CW, vel)
@@ -142,6 +143,25 @@ class WheelMotorDrive(Node):
         else:
             board.motor_movement([board.M2], board.CCW, abs(vel))
 
+    def drive_front_right(self, vel):
+        
+        board = self.right_board
+
+        if vel > 0:
+            board.motor_movement([board.M1], board.CCW, vel)
+
+        else:
+            board.motor_movement([board.M1], board.CW, abs(vel))
+
+    def drive_back_right(self, vel):
+        
+        board = self.right_board
+
+        if vel > 0:
+            board.motor_movement([board.M2], board.CCW, vel)
+
+        else:
+            board.motor_movement([board.M2], board.CW, abs(vel))
 
 def main(args=None):
 
