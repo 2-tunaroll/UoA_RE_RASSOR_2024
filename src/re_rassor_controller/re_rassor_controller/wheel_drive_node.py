@@ -1,6 +1,8 @@
 from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
+from adafruit_ina260 import INA260
+import board
 import rclpy
 import time
 
@@ -11,8 +13,13 @@ class WheelMotorDrive(Node):
 
         super().__init__('wheel_drive')
 
+        # motor controller boards
         self.left_board = DFRobot_DC_Motor_IIC(1, 0x10)
         self.right_board = DFRobot_DC_Motor_IIC(1, 0x12)
+
+        # current sensing chip
+        i2c = board.I2C()  # uses board.SCL and board.SDA
+        self.ina260 = INA260(i2c) # default address 0x40
 
         self.initialise_boards(self.left_board, self.right_board)
 
@@ -61,10 +68,11 @@ class WheelMotorDrive(Node):
 
         self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
 
-        self.drive_front_left(self.v_front_left)
-        self.drive_back_left(self.v_back_left)
-        self.drive_front_right(self.v_front_right)
-        self.drive_back_right(self.v_back_right)
+        while self.ina260.current <= 2000:
+            self.drive_front_left(self.v_front_left)
+            self.drive_back_left(self.v_back_left)
+            self.drive_front_right(self.v_front_right)
+            self.drive_back_right(self.v_back_right)
 
     def calculate_motor_velocities(self, msg):
 
