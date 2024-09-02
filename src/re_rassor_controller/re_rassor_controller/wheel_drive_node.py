@@ -1,6 +1,7 @@
 from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
+from custom_msgs.msg import WheelSpeeds
 from adafruit_ina260 import INA260
 import board
 import rclpy
@@ -34,6 +35,9 @@ class WheelMotorDrive(Node):
 
         # subscribe to velocity cmds
         self.subscription = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
+
+        # publish wheel velocities
+        self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
 
     def initialise_boards(self, left_board, right_board):
 
@@ -82,6 +86,8 @@ class WheelMotorDrive(Node):
 
         # get velocity feedback from encoders
         self.get_velocity_feedback()
+
+    
 
     def calculate_motor_velocities(self, msg):
 
@@ -182,6 +188,8 @@ class WheelMotorDrive(Node):
 
     def get_velocity_feedback(self):
 
+        wheel_speeds = WheelSpeeds()
+
         left_board = self.left_board
         right_board = self.right_board
 
@@ -190,7 +198,12 @@ class WheelMotorDrive(Node):
         right_front_speed, right_back_speed = right_board.get_encoder_speed(board.ALL)
 
         # convert from rpm to m/s
-        left_front_speed_ms = 0.11 * left_front_speed * 2*pi/60
+        wheel_speeds.front_left = 0.11 * left_front_speed * 2*pi/60
+        wheel_speeds.back_left = 0.11 * left_back_speed * 2*pi/60
+        wheel_speeds.front_right = 0.11 * right_front_speed * 2*pi/60
+        wheel_speeds.back_right = 0.11 * right_back_speed * 2*pi/60
+
+        self.speed_publisher_.publish(wheel_speeds)
 
 
 def main(args=None):

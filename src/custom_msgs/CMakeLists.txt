@@ -16,6 +16,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/TJoint.msg"
   "msg/BucketDrum.msg"
+  "msg/WheelSpeeds.msg"
   DEPENDENCIES std_msgs
 )
 
