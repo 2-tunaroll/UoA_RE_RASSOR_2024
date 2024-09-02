@@ -1,4 +1,3 @@
-
 from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
@@ -17,6 +16,15 @@ class WheelMotorDrive(Node):
 
         self.initialise_boards(self.left_board, self.right_board)
 
+        # store previous speed values
+        self.prev_v_front_left = 0
+        self.prev_v_back_left = 0
+        self.prev_v_front_right = 0 
+        self.prev_v_back_right = 0
+
+        self.acceleration_threshold = 2
+
+        # subscribe to velocity cmds
         self.subscription = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
 
     def initialise_boards(self, left_board, right_board):
@@ -57,49 +65,6 @@ class WheelMotorDrive(Node):
         self.drive_back_left(velocities[1])
         self.drive_front_right(velocities[2])
         self.drive_back_right(velocities[3])
-                
-        # # function to map y inputs to left wheel commands
-        # l_turn_map_pos = lambda y: 1 - y/0.5
-        # l_turn_map_neg = lambda y: (y+1)/0.5
-
-        # # function to map y inputs to right wheel commands
-        # r_turn_map_pos = lambda y: 1 - 2*y
-        # r_turn_map_neg = lambda y: 2*y - 1
-
-        # if self.wheel_side == 'L':
-        #     # drive forward (straight)
-        #     if msg.linear.x < 0 and msg.angular.y >= 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CW, self.speed_multiplier*abs(msg.linear.x))
-        #     # drive forward (turning - left wheels forward)
-        #     if msg.linear.x < 0 and (msg.angular.y < 0 and msg.angular.y > -0.5):
-        #         self.board.motor_movement([self.board.ALL], self.board.CW, self.speed_multiplier*(l_turn_map_pos(msg.angular.y)))
-        #     # drive forward (turning - left wheels backward)
-        #     if msg.linear.x < 0 and (msg.angular.y <= -0.5):
-        #         self.board.motor_movement([self.board.ALL], self.board.CCW, self.speed_multiplier*(l_turn_map_neg(msg.angular.y)))
-        #     # drive backward (straight)
-        #     if msg.linear.x > 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CCW, self.speed_multiplier*abs(msg.linear.x))
-        #     # drive backward (turn left)
-        #     if msg.angular.z < 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CCW, self.speed_multiplier*abs(msg.angular.z))
-        #     # drive forward (turn right)
-        #     if msg.angular.z > 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CW, self.speed_multiplier*abs(msg.angular.z))
-
-
-        # if self.wheel_side == 'R':
-        #     # drive forward
-        #     if msg.linear.x < 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CCW, self.speed_multiplier*abs(msg.linear.x))
-        #     # drive backward
-        #     if msg.linear.x > 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CW, self.speed_multiplier*abs(msg.linear.x))
-        #     # drive backward (turn left)
-        #     if msg.angular.z > 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CCW, self.speed_multiplier*abs(msg.angular.z))
-        #            # drive forward (turn right)
-        #     if msg.angular.z < 0:
-        #         self.board.motor_movement([self.board.ALL], self.board.CW, self.speed_multiplier*abs(msg.angular.z))
 
     def calculate_motor_velocities(self, msg):
 
@@ -124,9 +89,16 @@ class WheelMotorDrive(Node):
         v_front_left = (0.5*x_cmd - 0.5*turn_component)*speed_multiplier
         v_back_left = (0.5*x_cmd - 0.5*turn_component)*speed_multiplier
 
+        # self.prev_v_front_left = v_front_left
+        # self.prev_v_back_left = v_front_left
+
         # right wheels
         v_front_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
         v_back_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
+
+    
+        # self.prev_v_front_left = v_front_left
+        # self.prev_v_back_left = v_front_left
 
         return v_front_left, v_back_left, v_front_right, v_back_right
 

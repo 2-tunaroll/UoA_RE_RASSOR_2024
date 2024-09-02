@@ -28,7 +28,7 @@ class TestControlNode(Node):
         z_cmd = msg.angular.z
         
         # constants
-        speed_multiplier = 10
+        speed_multiplier = 50
         turn_threshold = 0.2
         turn_component = 0
 
