@@ -7,11 +7,11 @@ from motor_kit_singleton import MotorKitSingleton
 
 class ToolInterchange(Node):
     def __init__(self):
-        super().__init__('stepper_motor_controller')
+        super().__init__('tool_interchange')
 
         self.kit = MotorKitSingleton.get_instance()
 
-        # start direction at forward
+        # initialise direction as forward
         self.direction = stepper.FORWARD
         
         # number of steps
