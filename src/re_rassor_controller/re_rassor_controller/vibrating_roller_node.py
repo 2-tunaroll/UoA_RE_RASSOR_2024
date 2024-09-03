@@ -10,7 +10,7 @@ class VibratingRollerDrive(Node):
         super().__init__('vibrating_roller_drive')
 
         # initialise and set i2c address
-        self.board = DFRobot_DC_Motor_IIC(1, 0x14)
+        self.board = DFRobot_DC_Motor_IIC(1, 0x12)
         self.initialise_board(self.board)
 
         # create subscription to corresponding topic

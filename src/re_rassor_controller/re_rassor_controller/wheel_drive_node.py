@@ -20,7 +20,7 @@ class WheelMotorDrive(Node):
 
         # motor controller boards
         self.left_board = DFRobot_DC_Motor_IIC(1, 0x10)
-        self.right_board = DFRobot_DC_Motor_IIC(1, 0x12)
+        self.right_board = DFRobot_DC_Motor_IIC(1, 0x11)
 
         # current sensing chip
         i2c = board.I2C()  # uses board.SCL and board.SDA
