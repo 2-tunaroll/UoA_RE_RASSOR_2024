@@ -7,6 +7,9 @@ import board
 import rclpy
 import time
 from math import pi
+import signal
+import sys
+import RPi.GPIO as GPIO
 
 from re_rassor_controller.lib.DFRobot_RaspberryPi_DC_Motor import DFRobot_DC_Motor_IIC
 
@@ -86,8 +89,6 @@ class WheelMotorDrive(Node):
 
         # get velocity feedback from encoders
         self.get_velocity_feedback()
-
-    
 
     def calculate_motor_velocities(self, msg):
 
@@ -198,13 +199,14 @@ class WheelMotorDrive(Node):
         right_front_speed, right_back_speed = right_board.get_encoder_speed(board.ALL)
 
         # convert from rpm to m/s
-        wheel_speeds.front_left = 0.11 * left_front_speed * 2*pi/60
-        wheel_speeds.back_left = 0.11 * left_back_speed * 2*pi/60
-        wheel_speeds.front_right = 0.11 * right_front_speed * 2*pi/60
-        wheel_speeds.back_right = 0.11 * right_back_speed * 2*pi/60
+        speed_m_sec = lambda speed_rpm: 0.11 * speed_rpm *2*pi/60
+
+        wheel_speeds.front_left = speed_m_sec(left_front_speed)
+        wheel_speeds.back_left = speed_m_sec(left_back_speed)
+        wheel_speeds.front_right = speed_m_sec(right_front_speed)
+        wheel_speeds.back_right = speed_m_sec(right_back_speed)
 
         self.speed_publisher_.publish(wheel_speeds)
-
 
 def main(args=None):
 
@@ -224,7 +226,3 @@ def main(args=None):
     right_wheel_board.destroy_node()
 
     rclpy.shutdown()
-
-
-
-
