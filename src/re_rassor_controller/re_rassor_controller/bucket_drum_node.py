@@ -1,34 +1,34 @@
 import rclpy
 from rclpy.node import Node
 from time import sleep
-from adafruit_motor import motor
 from custom_msgs.msg import BucketDrum
-from motor_kit_singleton import MotorKitSingleton
+from DFRobot_DC_Motor_singleton import DFRobot_DC_Motor_Singleton
 
 class BucketDrumNode(Node):
     def __init__(self):
 
         super().__init__('bucket_drum_node')
 
-        # get motor kit instance
-        self.kit = MotorKitSingleton.get_instance()
+        # get instance of board
+        self.board = DFRobot_DC_Motor_Singleton.get_instance()
+
+        # Call the initialization method
+        self.board.initialise_board(self.board)
 
         self.subscription = self.create_subscription(BucketDrum, 'bucket_drum_cmd', self.listener_callback, 10)
 
     def listener_callback(self, msg):
+
+        board = self.board
         
         if msg.forward == 1:
-
-            for speed in range(0, 50, 10):
-                self.kit.motor1.throttle = speed
-
+            # have to verify directions
+            # 10% duty cycle is placeholder for now
+            board.motor_movement([board.M2], board.CW, 10)
         elif msg.backward == 1:
-
-            for speed in range(0, -50, -10):
-                self.kit.motor1.throttle = speed
-
+            board.motor_movement([board.M2], board.CCW, 10)
         else:
-            self.kit.motor1.throttle = 0
+            board.motor_stop(board.M2)
 
 def main(args=None):
     rclpy.init(args=args)
