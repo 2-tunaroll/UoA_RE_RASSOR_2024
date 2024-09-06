@@ -1,15 +1,16 @@
 import rclpy
 from rclpy.node import Node
 from time import sleep
+from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
+import board
 from std_msgs.msg import Int16
-from motor_kit_singleton import MotorKitSingleton
 
 class ToolInterchange(Node):
     def __init__(self):
         super().__init__('tool_interchange')
 
-        self.kit = MotorKitSingleton.get_instance()
+        self.kit = MotorKit(i2c=board.I2C())
 
         # initialise direction as forward
         self.direction = stepper.FORWARD
