@@ -90,7 +90,7 @@ class ControllerCommandPublisher(Node):
         velocity_msg = Twist()
 
         # must be pressing L2 and R2 to deliver power
-        if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
+        if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
 
             # velocity: forward and back
             if data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.05 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.05:
