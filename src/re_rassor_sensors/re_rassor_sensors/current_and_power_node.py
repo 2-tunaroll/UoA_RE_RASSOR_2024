@@ -1,0 +1,38 @@
+import rclpy
+from rclpy.node import Node
+from re_rassor_sensors.lib.adafruit_ina260 import INA260
+from std_msgs.msg import Bool, Int16
+import board
+
+class CurrentandPowerNode(Node):
+    def __init__(self):
+
+        super().__init__('current_and_power_node')
+
+        # initialise chip
+        i2c = board.I2C()  # uses board.SCL and board.SDA
+        self.ina260 = INA260(i2c) # default address 0x40
+
+        self.shutdown_publisher = self.create_publisher(Bool, 'shutdown_cmd', 10)
+        self.voltage_publisher = self.create_publisher(Int16, 'battery_voltage', 10)
+
+        self.get_current_and_voltage()
+
+    def get_current_and_voltage(self):
+        pass
+
+def main(args=None):
+
+    rclpy.init(args=args)
+    
+    node = CurrentandPowerNode()
+    
+    try:
+        rclpy.spin(node)
+
+    except KeyboardInterrupt:
+        pass
+
+    node.destroy_node()
+
+    rclpy.shutdown()
