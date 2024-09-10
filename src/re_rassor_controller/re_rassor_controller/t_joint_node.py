@@ -4,7 +4,7 @@ from time import sleep
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 import board
-from std_msgs.msg import Int16
+from std_msgs.msg import Bool
 from custom_msgs.msg import TJoint
 
 class TJointNode(Node):
@@ -21,17 +21,17 @@ class TJointNode(Node):
         # stepper1 is front, stepper2 is back
         self.kit = MotorKit(i2c=board.I2C(), address=0x61)
 
-        self.subscription_1 = self.create_subscription(Int16, 'shutdown_cmd', self.shutdown_callback, 10)
+        self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
         self.subscription_2 = self.create_subscription(TJoint, 't_joint_cmd', self.listener_callback, 10)
 
     def shutdown_callback(self, msg):
         # sets the shutdown flag to true if the current sensing chip detects a current spike
-        if msg.data == 1:
+        if msg.data:
             self.SHUT_DOWN = True
 
     def listener_callback(self, msg):
 
-        if self.SHUT_DOWN == True:
+        if self.SHUT_DOWN:
             self.kit.stepper1.release()
             self.kit.stepper2.release()
             return

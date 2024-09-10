@@ -1,8 +1,7 @@
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from geometry_msgs.msg import Twist
 from custom_msgs.msg import WheelSpeeds
-from adafruit_ina260 import INA260
 import board
 import rclpy
 import time
@@ -22,11 +21,10 @@ class WheelMotorDrive(Node):
         self.left_board = DFRobot_DC_Motor_IIC(1, 0x10)
         self.right_board = DFRobot_DC_Motor_IIC(1, 0x11)
 
-        # current sensing chip
-        i2c = board.I2C()  # uses board.SCL and board.SDA
-        self.ina260 = INA260(i2c) # default address 0x40
-
         self.initialise_boards(self.left_board, self.right_board)
+
+        # shutdown flag
+        self.SHUT_DOWN = False
 
         # store previous speed values
         self.v_front_left = 0
@@ -34,13 +32,24 @@ class WheelMotorDrive(Node):
         self.v_front_right = 0
         self.v_back_right = 0
 
+        # update time
+        self.dt = 0.2
+
         self.last_called_time = time.time()
 
+        # subscribe to current sensing command
+        self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
         # subscribe to velocity cmds
         self.subscription = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
 
         # publish wheel velocities
         self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
+
+    def shutdown_callback(self, msg):
+
+        # sets the shutdown flag to true if the current sensing chip detects a current spike
+        if msg.data:
+            self.SHUT_DOWN = True
 
     def initialise_boards(self, left_board, right_board):
 
@@ -74,10 +83,15 @@ class WheelMotorDrive(Node):
         
     def listener_callback(self, msg):
 
+        if self.SHUT_DOWN:
+            self.left_board.motor_stop(board.ALL)
+            self.right_board.motor_stop(board.ALL)
+            return
+        
         current_time = time.time()
 
         # only send commands every 0.5 s
-        if (current_time - self.last_called_time) > 0.5:
+        if (current_time - self.last_called_time) > self.dt:
 
             self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
             self.last_called_time = current_time
@@ -127,7 +141,7 @@ class WheelMotorDrive(Node):
     
     def ease_speed(self, new_speed, prev_speed):
 
-        max_delta = 10
+        max_delta = 10 * self.dt
 
         if abs(new_speed - prev_speed) >= max_delta:
 
@@ -226,3 +240,6 @@ def main(args=None):
     right_wheel_board.destroy_node()
 
     rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
