@@ -129,7 +129,7 @@ class ControllerCommandPublisher(Node):
             self.circle_button_pressed = False
 
         # must be pressing L2 and R2 to deliver power
-        if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
+        if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
             
             # only publish up or down at one time
             if self.t_joint_msg.down != 1:
@@ -155,7 +155,7 @@ class ControllerCommandPublisher(Node):
             self.cross_last_pressed_time = current_time
 
         # must be pressing L2 and R2 to deliver power
-        if data['axes'][inputs.RIGHT_TRIGGER] > -0.95 and data['axes'][inputs.LEFT_TRIGGER] > -0.95:
+        if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
             
             # bucket drum
             # only publish forward or back at one time
