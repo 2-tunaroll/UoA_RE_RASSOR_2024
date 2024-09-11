@@ -3,6 +3,7 @@ from rclpy.node import Node
 from re_rassor_sensors.lib.adafruit_ina260 import INA260
 from std_msgs.msg import Bool, Int16
 import board
+import os
 
 class CurrentandPowerNode(Node):
     def __init__(self):
@@ -22,7 +23,7 @@ class CurrentandPowerNode(Node):
 
         # current
         current_msg = Bool()
-        if self.ina260.current > 8000:
+        if self.ina260.current > 7500:
             current_msg.data = True
         else:
             current_msg.data = False
@@ -31,6 +32,12 @@ class CurrentandPowerNode(Node):
         # voltage
         voltage_msg = Int16()
         voltage_msg.data = self.ina260.voltage
+
+        # shutdown the Raspberry Pi if the voltage drops below 14.8V
+        if voltage_msg.data <= 14.8:
+            os.system("sudo shutdown -h now")
+            return
+
         self.voltage_publisher_.publish(voltage_msg)
 
 def main(args=None):
