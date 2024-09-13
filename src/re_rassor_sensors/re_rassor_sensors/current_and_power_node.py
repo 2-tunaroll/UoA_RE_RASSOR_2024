@@ -27,7 +27,6 @@ class CurrentandPowerNode(Node):
         # list to hold 4x voltage values
         self.voltage_array = []
 
-        # self.pi_shutdown_publisher_ = self.create_publisher(Bool, 'pi_shutdown_cmd', 10)
         self.motor_shutdown_publisher_ = self.create_publisher(Bool, 'motor_shutdown_cmd', 10)
 
         self.voltage_publisher_ = self.create_publisher(Float32, 'battery_voltage', 10)
@@ -52,9 +51,10 @@ class CurrentandPowerNode(Node):
             average_voltage = mean(self.voltage_array)
             self.voltage_array.clear()
 
-            # shutdown the Raspberry Pi if the voltage over the given time period drops below 14.8V
-            if average_voltage <= 10: # change to what this needs to be
-                os.system("sudo shutdown -h now")
+            # shutdown the Raspberry Pi if the voltage over the given time period drops below 12V
+            if average_voltage <= 12: # change to what this needs to be
+                print("low battery: shutting down!!")
+                # os.system("sudo shutdown -h now")
                 return
 
         # publish the battery voltage
