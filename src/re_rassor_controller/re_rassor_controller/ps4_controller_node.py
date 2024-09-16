@@ -21,9 +21,10 @@ class ControllerCommandPublisher(Node):
         self.bucket_drum_publisher_ = self.create_publisher(BucketDrum, 'bucket_drum_cmd', 100)
         self.tool_interchange_publisher_ = self.create_publisher(Int16, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
-        self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode')
+        self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
 
-        self.debounce_time = 0.5 #seconds
+        self.prev_speed_multiplier = 50.0
+        self.debounce_time = 0.5 # seconds
         self.circle_last_pressed_time = 0 
         self.cross_last_pressed_time = 0
         self.t_joint_msg = TJoint()
@@ -89,16 +90,21 @@ class ControllerCommandPublisher(Node):
 
         # set the speed multiplier for driving the wheels
         speed_mode_msg = Float32()
+        
+        self.prev_speed_multiplier
     
         if data['buttons'][inputs.SHARE] == 1:
-            speed_mode_msg = 25
+            speed_mode_msg.data = 25.0
+            self.prev_speed_multiplier = 25.0
         elif data['buttons'][inputs.TOUCH_PAD] == 1:
-            speed_mode_msg = 50
+            speed_mode_msg.data = 50.0
+            self.prev_speed_multiplier = 50.0
         elif data['buttons'][inputs.OPTIONS] == 1:
-            speed_mode_msg = 100
+            speed_mode_msg.data = 100.0
+            self.prev_speed_multiplier = 100.0
         else:
-            # if no selection pick the default 50% speed multiplier
-            speed_mode_msg = 0.5
+            # if no selection keep the previous speed multiplier
+            speed_mode_msg.data = self.prev_speed_multiplier
 
         # velocity message
         velocity_msg = Twist()
