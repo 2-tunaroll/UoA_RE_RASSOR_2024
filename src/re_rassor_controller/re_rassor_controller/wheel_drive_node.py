@@ -1,5 +1,5 @@
 from rclpy.node import Node
-from std_msgs.msg import String, Bool
+from std_msgs.msg import String, Bool, Float32
 from geometry_msgs.msg import Twist
 from custom_msgs.msg import WheelSpeeds
 import board
@@ -26,6 +26,9 @@ class WheelMotorDrive(Node):
         # shutdown flag
         self.SHUT_DOWN = False
 
+        # speed multiplier: initialise to 25%
+        self.speed_multiplier = 25
+
         # store previous speed values
         self.v_front_left = 0
         self.v_back_left = 0
@@ -40,8 +43,9 @@ class WheelMotorDrive(Node):
         # subscribe to current sensing command
         self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
         # subscribe to velocity cmds
-        self.subscription = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
-
+        self.subscription_2 = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
+        # subscribe to speed mode
+        self.subscription_3 = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
         # publish wheel velocities
         self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
 
@@ -50,6 +54,11 @@ class WheelMotorDrive(Node):
         # sets the shutdown flag to true if the current sensing chip detects a current spike
         if msg.data:
             self.SHUT_DOWN = True
+
+    def speed_mode_callback(self, msg):
+
+        # sets the speed multipler for driving
+        self.speed_multiplier = msg.data
 
     def initialise_boards(self, left_board, right_board):
 
@@ -110,7 +119,6 @@ class WheelMotorDrive(Node):
         z_cmd = msg.angular.z
         
         # constants
-        speed_multiplier = 10 # percent of max velocity
         turn_threshold = 0.2
         turn_component = 0
 
@@ -124,12 +132,12 @@ class WheelMotorDrive(Node):
                 turn_component = z_cmd + turn_threshold
 
         # left wheels
-        raw_v_front_left = (-0.5*x_cmd + 0.5*turn_component)*speed_multiplier
-        raw_v_back_left = (-0.5*x_cmd + 0.5*turn_component)*speed_multiplier
+        raw_v_front_left = (-0.5*x_cmd + 0.5*turn_component)*self.speed_multiplier
+        raw_v_back_left = (-0.5*x_cmd + 0.5*turn_component)*self.speed_multiplier
 
         # right wheels
-        raw_v_front_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
-        raw_v_back_right = (-0.5*x_cmd - 0.5*turn_component)*speed_multiplier
+        raw_v_front_right = (-0.5*x_cmd - 0.5*turn_component)*self.speed_multiplier
+        raw_v_back_right = (-0.5*x_cmd - 0.5*turn_component)*self.speed_multiplier
 
         # ease the speeds
         self.v_front_left = self.ease_speed(raw_v_front_left, self.v_front_left)
