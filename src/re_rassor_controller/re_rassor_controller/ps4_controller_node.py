@@ -1,7 +1,7 @@
 import socket
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Int16
+from std_msgs.msg import String, Int16, Float32
 import time
 from geometry_msgs.msg import Twist
 import json
@@ -21,7 +21,7 @@ class ControllerCommandPublisher(Node):
         self.bucket_drum_publisher_ = self.create_publisher(BucketDrum, 'bucket_drum_cmd', 100)
         self.tool_interchange_publisher_ = self.create_publisher(Int16, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
-        # self.speed_mode_publisher = self.create_publisher(Float32, 'speed_mode')
+        self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode')
 
         self.debounce_time = 0.5 #seconds
         self.circle_last_pressed_time = 0 
@@ -87,6 +87,20 @@ class ControllerCommandPublisher(Node):
         
     def get_driving_commands(self, data):
 
+        # set the speed multiplier for driving the wheels
+        speed_mode_msg = Float32()
+    
+        if data['buttons'][inputs.SHARE] == 1:
+            speed_mode_msg = 25
+        elif data['buttons'][inputs.TOUCH_PAD] == 1:
+            speed_mode_msg = 50
+        elif data['buttons'][inputs.OPTIONS] == 1:
+            speed_mode_msg = 100
+        else:
+            # if no selection pick the default 50% speed multiplier
+            speed_mode_msg = 0.5
+
+        # velocity message
         velocity_msg = Twist()
 
         # must be pressing L2 and R2 to deliver power
@@ -101,6 +115,7 @@ class ControllerCommandPublisher(Node):
                 velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
 
         self.velocity_publisher_.publish(velocity_msg)
+        self.speed_mode_publisher_.publish(speed_mode_msg)
 
     def get_t_joint_commands(self, data):
 
