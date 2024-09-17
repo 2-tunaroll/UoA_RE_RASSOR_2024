@@ -17,6 +17,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/TJoint.msg"
   "msg/BucketDrum.msg"
   "msg/WheelSpeeds.msg"
+  "msg/Interchange.msg"
   DEPENDENCIES std_msgs
 )
 
