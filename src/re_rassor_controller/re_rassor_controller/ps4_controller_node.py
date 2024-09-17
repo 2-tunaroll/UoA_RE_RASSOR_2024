@@ -7,7 +7,7 @@ from geometry_msgs.msg import Twist
 import json
 import re_rassor_controller.lib.controller_input_defs as inputs
 
-from custom_msgs.msg import TJoint, BucketDrum
+from custom_msgs.msg import TJoint, BucketDrum, Interchange
 
 class ControllerCommandPublisher(Node):
     def __init__(self):
@@ -19,14 +19,21 @@ class ControllerCommandPublisher(Node):
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(TJoint, 't_joint_cmd', 100)
         self.bucket_drum_publisher_ = self.create_publisher(BucketDrum, 'bucket_drum_cmd', 100)
-        self.tool_interchange_publisher_ = self.create_publisher(Int16, 'tool_interchange_cmd', 10)
+        self.tool_interchange_publisher_ = self.create_publisher(Interchange, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
 
+        # set default speed multiplier to 50%
         self.prev_speed_multiplier = 50.0
+        # set debounce time for button presses
         self.debounce_time = 0.5 # seconds
         self.circle_last_pressed_time = 0 
+        self.square_last_pressed_time = 0
         self.cross_last_pressed_time = 0
+
+        # create message classes for tool interchange and t-joint
+        self.tool_interchange_msg = Interchange()
+        self.tool_interchange_msg.mode.data = 'MANUAL'
         self.t_joint_msg = TJoint()
         self.t_joint_msg.t_joint.data = 'FRONT'
 
@@ -165,16 +172,29 @@ class ControllerCommandPublisher(Node):
         
         current_time = time.time()
         debounce_time = 0.2 # seconds
-
-        tool_interchange_msg = Int16()
+        
         vibrating_motor_msg = Int16()
         bucket_drum_msg = BucketDrum()
 
-        # tool interchange
+        # TOOL INTERCHANGE
+
+        # Toggle the mode of the interchange between manual and autonomous
+        if (data['buttons'][inputs.SQUARE] == 1) and (current_time - self.square_last_pressed_time > debounce_time):
+
+            if self.tool_interchange_msg.mode.data == 'MANUAL':
+                self.tool_interchange_msg.mode.data = 'AUTO'
+            elif self.tool_interchange_msg.mode.data == 'MANUAL':
+                self.tool_interchange_msg.mode.data = 'AUTO'
+
+            self.square_last_pressed_time = current_time
+
+        # Enable/disable the interchange
         if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.cross_last_pressed_time > debounce_time):
-            tool_interchange_msg.data = data['buttons'][inputs.CROSS]
+
+            self.tool_interchange_msg.toggle = data['buttons'][inputs.CROSS]
             self.cross_last_pressed_time = current_time
 
+        # TOOLS
         # must be pressing L2 and R2 to deliver power
         if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
             
@@ -193,7 +213,7 @@ class ControllerCommandPublisher(Node):
 
         # publish commands
         self.bucket_drum_publisher_.publish(bucket_drum_msg)
-        self.tool_interchange_publisher_.publish(tool_interchange_msg)
+        self.tool_interchange_publisher_.publish(self.tool_interchange_msg)
         self.vibrating_motor_publisher_.publish(vibrating_motor_msg)
            
 def main(args=None):
