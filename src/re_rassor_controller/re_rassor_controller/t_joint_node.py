@@ -30,17 +30,19 @@ class TJointNode(Node):
             self.SHUT_DOWN = True
 
     def listener_callback(self, msg):
-
+        # shutdown flag true: immediately stop motor movement
         if self.SHUT_DOWN:
             self.kit.stepper1.release()
             self.kit.stepper2.release()
             return
-
+        
+        # set movement direction based on controller input
         if msg.up == 1:
             self.direction = stepper.FORWARD
         elif msg.down == 1:
             self.direction = stepper.BACKWARD
 
+        # move
         if msg.up == 1 or msg.down == 1:
             if msg.t_joint.data == 'FRONT':
                 for _ in range(self.steps):
@@ -51,6 +53,11 @@ class TJointNode(Node):
                 for _ in range(self.steps):
                     self.kit.stepper2.onestep(direction=self.direction)
                     sleep(0.01)  # 10 milliseconds delay
+                    
+        # if no longer moving, release
+        else:
+            self.kit.stepper1.release()
+            self.kit.stepper2.release()
 
 def main(args=None):
     rclpy.init(args=args)
