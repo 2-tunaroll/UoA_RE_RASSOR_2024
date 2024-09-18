@@ -23,7 +23,7 @@ class ToolControlNode(Node):
         self.SHUT_DOWN = False
 
         # Call the initialisation method
-        self.initialise_board(self.board)
+        self.initialise_board(self.board, "12. tool control")
 
         self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
         self.subscription_2 = self.create_subscription(BucketDrum, 'bucket_drum_cmd', self.bucket_drum_callback, 10)
@@ -34,19 +34,19 @@ class ToolControlNode(Node):
         if msg.data:
             self.SHUT_DOWN = True
 
-    def initialise_board(self):
+    def initialise_board(self, id):
 
         board = self.board
 
         while board.begin() != board.STA_OK:    # Board begin and check board status
             self.print_board_status(board)
-            print("board begin failed")
+            print(f"{id} board begin failed")
             time.sleep(2)
 
         board.set_encoder_enable(board.ALL)
         board.set_moter_pwm_frequency(1000)
 
-        print("board begin success")
+        print(f"{id} board begin success")
 
     def print_board_status(self, board):
 

@@ -21,7 +21,10 @@ class WheelMotorDrive(Node):
         self.left_board = DFRobot_DC_Motor_IIC(1, 0x10)
         self.right_board = DFRobot_DC_Motor_IIC(1, 0x11)
 
-        self.initialise_boards(self.left_board, self.right_board)
+        self.initialise_board(self.left_board, "10. left wheels")
+        self.initialise_board(self.right_board, "11. right wheels")
+
+        # self.initialise_boards(self.left_board, self.right_board)
 
         # shutdown flag
         self.SHUT_DOWN = False
@@ -48,6 +51,19 @@ class WheelMotorDrive(Node):
         self.subscription_3 = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
         # publish wheel velocities
         self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
+
+
+    def initialise_board(self, board, id):
+
+        while board.begin() != board.STA_OK:    # Board begin and check board status
+            self.print_board_status(board)
+            print(f"{id} board begin failed")
+            time.sleep(2)
+
+        board.set_encoder_enable(board.ALL)
+        board.set_moter_pwm_frequency(1000)
+
+        print(f"{id} board begin success")
 
     def shutdown_callback(self, msg):
 
@@ -216,9 +232,9 @@ class WheelMotorDrive(Node):
         left_board = self.left_board
         right_board = self.right_board
 
-        left_front_speed, left_back_speed = left_board.get_encoder_speed(board.ALL)
+        left_front_speed, left_back_speed = left_board.get_encoder_speed(left_board.ALL)
 
-        right_front_speed, right_back_speed = right_board.get_encoder_speed(board.ALL)
+        right_front_speed, right_back_speed = right_board.get_encoder_speed(right_board.ALL)
 
         # convert from rpm to m/s
         speed_m_sec = lambda speed_rpm: 0.11 * speed_rpm *2*pi/60
