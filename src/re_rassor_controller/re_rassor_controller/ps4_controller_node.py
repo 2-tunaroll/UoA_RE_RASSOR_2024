@@ -31,6 +31,11 @@ class ControllerCommandPublisher(Node):
         self.square_last_pressed_time = 0
         self.cross_last_pressed_time = 0
 
+        # set flags for buttons pressed
+        self.circle_button_pressed = False
+        self.cross_button_pressed = False
+        self.square_button_pressed = False
+
         # create message classes for tool interchange and t-joint
         self.tool_interchange_msg = Interchange()
         self.tool_interchange_msg.mode.data = 'MANUAL'
@@ -98,7 +103,7 @@ class ControllerCommandPublisher(Node):
         # set the speed multiplier for driving the wheels
         speed_mode_msg = Float32()
         
-        self.prev_speed_multiplier
+        # self.prev_speed_multiplier
     
         if data['buttons'][inputs.SHARE] == 1:
             speed_mode_msg.data = 25.0
@@ -177,28 +182,56 @@ class ControllerCommandPublisher(Node):
         bucket_drum_msg = BucketDrum()
 
         # TOOL INTERCHANGE
+        if data['buttons'][inputs.CIRCLE] == 1:
+
+            # Only toggle if the button wasn't previously pressed
+            if not self.circle_button_pressed and (current_time - self.circle_last_pressed_time > debounce_time):
+                self.circle_last_pressed_time = current_time
+
+                # Toggle the state
+                if self.t_joint_msg.t_joint.data == 'FRONT':
+                    self.t_joint_msg.t_joint.data = 'BACK'
+                elif self.t_joint_msg.t_joint.data == 'BACK':
+                    self.t_joint_msg.t_joint.data = 'FRONT'
+
+                # Set the flag to indicate the button is now pressed
+                self.circle_button_pressed = True
+
+        # Check if the button is released
+        elif data['buttons'][inputs.CIRCLE] == 0:
+            # Reset the flag when the button is released
+            self.circle_button_pressed = False
 
         # Toggle the mode of the interchange between manual and autonomous
         if (data['buttons'][inputs.SQUARE] == 1) and (current_time - self.square_last_pressed_time > debounce_time):
 
+            self.square_last_pressed_time = current_time
+
+            # toggle the interchange
             if self.tool_interchange_msg.mode.data == 'MANUAL':
                 self.tool_interchange_msg.mode.data = 'AUTO'
-            elif self.tool_interchange_msg.mode.data == 'MANUAL':
-                self.tool_interchange_msg.mode.data = 'AUTO'
+            elif self.tool_interchange_msg.mode.data == 'AUTO':
+                self.tool_interchange_msg.mode.data = 'MANUAL'
 
-            self.square_last_pressed_time = current_time
+            self.square_button_pressed = True
+
+        # Check if the button is released
+        elif data['buttons'][inputs.SQUARE] == 0:
+            # Reset the flag when the button is released
+            self.square_button_pressed = False
 
         # Enable/disable the interchange
         if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.cross_last_pressed_time > debounce_time):
-
-            self.tool_interchange_msg.toggle = data['buttons'][inputs.CROSS]
+            self.tool_interchange_msg.toggle = 1
             self.cross_last_pressed_time = current_time
+        else:
+            self.tool_interchange_msg.toggle = 0        
 
         # TOOLS
         # must be pressing L2 and R2 to deliver power
         if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
             
-            # bucket drum
+            # Bucket drum
             # only publish forward or back at one time
             if bucket_drum_msg.backward != 1:
                 # print(Int16(data['buttons'][inputs.UP]))
@@ -208,7 +241,7 @@ class ControllerCommandPublisher(Node):
             if bucket_drum_msg.forward != 1:
                 bucket_drum_msg.backward = data['buttons'][inputs.DOWN] # backward
             
-            # vibrating motor
+            # Vibrating motor
             vibrating_motor_msg.data = data['buttons'][inputs.TRIANGLE]
 
         # publish commands
