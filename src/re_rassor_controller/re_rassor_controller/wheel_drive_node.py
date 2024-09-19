@@ -1,14 +1,11 @@
 from rclpy.node import Node
-from std_msgs.msg import String, Bool, Float32
+from std_msgs.msg import Bool, Float32
 from geometry_msgs.msg import Twist
 from custom_msgs.msg import WheelSpeeds
 import board
 import rclpy
 import time
 from math import pi
-import signal
-import sys
-import RPi.GPIO as GPIO
 
 from re_rassor_controller.lib.DFRobot_RaspberryPi_DC_Motor import DFRobot_DC_Motor_IIC
 
@@ -76,22 +73,22 @@ class WheelMotorDrive(Node):
         # sets the speed multipler for driving
         self.speed_multiplier = msg.data
 
-    def initialise_boards(self, left_board, right_board):
+    # def initialise_boards(self, left_board, right_board):
 
-        for board in (left_board, right_board):
+    #     for board in (left_board, right_board):
 
-            while board.begin() != board.STA_OK:    # Board begin and check board status
-                self.print_board_status(board)
-                print("board begin failed")
-                time.sleep(2)
+    #         while board.begin() != board.STA_OK:    # Board begin and check board status
+    #             self.print_board_status(board)
+    #             print("board begin failed")
+    #             time.sleep(2)
 
-            board.set_encoder_enable(board.ALL)
-            board.set_moter_pwm_frequency(1000)
+    #         board.set_encoder_enable(board.ALL)
+    #         board.set_moter_pwm_frequency(1000)
 
-            print("board begin success")
-            return True
+    #         print("board begin success")
+    #         return True
         
-        return False
+    #     return False
 
     def print_board_status(self, board):
 
