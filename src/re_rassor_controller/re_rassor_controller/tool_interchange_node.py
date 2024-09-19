@@ -6,7 +6,7 @@ from adafruit_motor import stepper
 import board
 from std_msgs.msg import Bool
 from custom_msgs.msg import Interchange
-import RPi.GPIO as GPIO
+from gpiozero import DigitalInputDevice
 
 class ToolInterchange(Node):
     def __init__(self):
@@ -14,21 +14,18 @@ class ToolInterchange(Node):
 
         self.kit = MotorKit(i2c=board.I2C())
 
-        # initialise direction as forward
-        self.direction = stepper.FORWARD
+        # # initialise direction as forward
+        # self.direction = stepper.BACKWARD
         # number of steps
-        self.steps = 13
+        self.steps = 30
         # moving flag - so messages are not overloaded and all the required steps complete
         self.moving = False
         # shutdown flag
         self.SHUT_DOWN = False
 
         # set up GPIO pin for proximity sensor
-        # Use BCM pin numbering
-        GPIO.setmode(GPIO.BCM)
         # Set up GPIO pin 17 as an input
-        self.sensor_pin = 17
-        GPIO.setup(self.sensor_pin, GPIO.IN)
+        self.proximity_sensor = DigitalInputDevice(pin=17)
  
         # set flag for whether it is connected
         self.is_connected = False
@@ -57,22 +54,20 @@ class ToolInterchange(Node):
 
             # set direction to reverse for next time it is called
             # if it was just connected
-            if self.direction == stepper.FORWARD:
-                self.is_connected = True
-                self.direction = stepper.BACKWARD
-            else: # if it was just disconnected
-                self.direction = stepper.FORWARD
-                self.is_connected = False
+            # if self.direction == stepper.FORWARD:
+            #     self.is_connected = True
+            #     self.direction = stepper.BACKWARD
+            # else: # if it was just disconnected
+            #     self.direction = stepper.FORWARD
+            #     self.is_connected = False
 
         elif msg.mode.data == "AUTO":
-
-            if GPIO.input(self.sensor_pin) and not self.is_connected:
-                self.direction = stepper.FORWARD
+            if not self.proximity_sensor.value and not self.is_connected:
                 self.step()
                 self.is_connected = True
     
             if msg.toggle == 1 and self.is_connected:
-                self.direction = stepper.BACKWARD
+                # self.direction = stepper.BACKWARD
                 self.step()
                 self.is_connected = False
 
@@ -80,8 +75,8 @@ class ToolInterchange(Node):
         # does the required amount of stepping for the interchange to connect/disconnect
         self.moving = True
         for _ in range(self.steps):
-            self.kit.stepper1.onestep(direction=self.direction)
-            sleep(0.01)  # 10 milliseconds delay
+            self.kit.stepper1.onestep(direction=self.direction, style=stepper.INTERLEAVE)
+            sleep(0.05)  # delay
         self.moving = False
          
 def main(args=None):
@@ -91,6 +86,7 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
+        node.kit.stepper1.release()
         pass
     
     node.destroy_node()
