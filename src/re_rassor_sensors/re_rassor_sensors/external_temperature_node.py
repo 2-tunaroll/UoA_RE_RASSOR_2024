@@ -30,20 +30,20 @@ class ExternalTemperatureNode(Node):
 
     def publish_temperature(self):
 
-        lines = self.read_temp_raw
-        while lines[0].strip()[-3:] != 'YES':
+        lines = self.read_temp_raw()
+        while (lines[0].strip())[-3:] != 'YES':
             time.sleep(0.2)
             lines = self.read_temp_raw()
         equals_pos = lines[1].find('t=')
         if equals_pos != -1:
             temp_string = lines[1][equals_pos+2:]
-            temp_c = Float64(temp_string) / 1000.0
+            temp_c = float(temp_string) / 1000.0
             temp_f = temp_c * 9.0 / 5.0 + 32.0
 
             self.get_logger().info(f'Temperature: {temp_c} °C, {temp_f} °F')
 
-            self.publisher_c.publish(data=temp_c)
-            self.publisher_f.publish(data=temp_f)
+            self.publisher_c.publish(Float64(data=temp_c))
+            self.publisher_f.publish(Float64(data=temp_f))
 
 def main(args=None):
     rclpy.init(args=args)

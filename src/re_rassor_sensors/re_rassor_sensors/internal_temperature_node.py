@@ -3,8 +3,6 @@ from rclpy.node import Node
 from std_msgs.msg import Float64
 
 from re_rassor_sensors.lib.PiicoDev_TMP117 import PiicoDev_TMP117
-from re_rassor_sensors.lib.PiicoDev_Unified import sleep_ms 
-
 class InternalTemperatureNode(Node):
     def __init__(self):
         super().__init__('temperature_node')

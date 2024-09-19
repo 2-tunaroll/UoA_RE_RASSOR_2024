@@ -2,7 +2,7 @@
 # https://github.com/CoreElectronics/CE-PiicoDev-TMP117-MicroPython-Module
 # Written by Michael Ruppe at Core Electronics MAR 2021
 
-from PiicoDev_Unified import *
+from re_rassor_sensors.lib.PiicoDev_Unified import *
 
 # Register definitions
 REG_TEMPC = 0x00
