@@ -106,8 +106,8 @@ class WheelMotorDrive(Node):
     def listener_callback(self, msg):
 
         if self.SHUT_DOWN:
-            self.left_board.motor_stop(board.ALL)
-            self.right_board.motor_stop(board.ALL)
+            self.left_board.motor_stop(self.left_board.ALL)
+            self.right_board.motor_stop(self.right_board.ALL)
             return
         
         current_time = time.time()
