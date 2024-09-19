@@ -166,10 +166,14 @@ class ControllerCommandPublisher(Node):
             
             # only publish up or down at one time
             if self.t_joint_msg.down != 1:
-                self.t_joint_msg.up = data['buttons'][inputs.L1] # up
+                self.t_joint_msg.up = data['buttons'][inputs.R1] # up
 
             if self.t_joint_msg.up != 1:
-                self.t_joint_msg.down = data['buttons'][inputs.R1] # down
+                self.t_joint_msg.down = data['buttons'][inputs.L1] # down
+
+        else:
+            self.t_joint_msg.up = 0
+            self.t_joint_msg.down = 0
         
         self.t_joint_publisher_.publish(self.t_joint_msg)
         
