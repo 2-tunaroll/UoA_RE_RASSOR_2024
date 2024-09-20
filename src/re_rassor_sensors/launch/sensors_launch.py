@@ -1,16 +1,23 @@
-import launch
-import launch_ros.actions
+
+from launch import LaunchDescription
+from launch_ros.actions import Node
 
 def generate_launch_description():
-    return launch.LaunchDescription([
-        launch_ros.actions.Node(
+    return LaunchDescription([
+        Node(
+            package='re_rassor_sensors',
+            executable='current_and_power',
+            name='current_and_power'),
+        Node(
             package='re_rassor_sensors',
             executable='accelerometer',
-            name='accelerometer'
-        ),
-        launch_ros.actions.Node(
+            name='accelerometer'),
+        Node(
             package='re_rassor_sensors',
-            executable='temperature',
-            name='temperature_sensor'
-        ),
-    ])
+            executable='external_temperature',
+            name='external_temperature'),
+        Node(
+            package='re_rassor_sensors',
+            executable='internal_temperature',
+            name='internal_temperature'),
+  ])
