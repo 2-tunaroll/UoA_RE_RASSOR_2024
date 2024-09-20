@@ -20,8 +20,6 @@ class AccelerometerNode(Node):
         self.acce.set_range(self.acce.RANGE_2G)  # Set range to ±2g
         self.acce.set_data_rate(self.acce.RATE_200HZ)
 
-        self.get_logger().info('AccelerometerNode initialized')
-
     def publish_acceleration(self):
         # Read acceleration in mg
         x_mg = self.acce.read_acc_x()
@@ -46,7 +44,6 @@ class AccelerometerNode(Node):
         imu_msg.linear_acceleration_covariance[0] = -1.0  # Indicates no acceleration covariance
 
         self.publisher_.publish(imu_msg)
-        self.get_logger().info(f'Published IMU data: x={x_ms2:.2f}m/s², y={y_ms2:.2f}m/s², z={z_ms2:.2f}m/s²')
 
 def main(args=None):
     rclpy.init(args=args)

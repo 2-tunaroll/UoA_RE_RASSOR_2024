@@ -8,7 +8,7 @@ class InternalTemperatureNode(Node):
         super().__init__('temperature_node')
         self.temp_sensor = PiicoDev_TMP117()  # initialize the sensor
         self.publisher_c = self.create_publisher(Float64, 'internal_temperature_c', 10)
-        self.publisher_f = self.create_publisher(Float64, 'internal_temperature_f', 10)
+        # self.publisher_f = self.create_publisher(Float64, 'internal_temperature_f', 10)
         self.timer = self.create_timer(1.0, self.publish_temperature)  # 1 second timer
 
     def publish_temperature(self):
@@ -16,11 +16,9 @@ class InternalTemperatureNode(Node):
         temp_f = self.temp_sensor.readTempF()  # Fahrenheit
         temp_k = self.temp_sensor.readTempK()  # Kelvin
 
-        self.get_logger().info(f'Temperature: {temp_c} °C, {temp_f} °F, {temp_k} K')
-
         # Publish temperature readings
         self.publisher_c.publish(Float64(data=temp_c))
-        self.publisher_f.publish(Float64(data=temp_f))
+        # self.publisher_f.publish(Float64(data=temp_f))
 
 def main(args=None):
     rclpy.init(args=args)
