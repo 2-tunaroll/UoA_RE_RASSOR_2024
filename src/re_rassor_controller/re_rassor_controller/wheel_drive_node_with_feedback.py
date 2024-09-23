@@ -140,10 +140,10 @@ class WheelMotorDrive(Node):
         self.get_velocity_feedback()
 
         # implement proportional control based on current actual speed
-        delta_front_left = target_v_front_left - self.self.wheel_speeds.front_left
-        delta_back_left = target_v_back_left - self.self.wheel_speeds.back_left
-        delta_front_right = target_v_front_right - self.self.wheel_speeds.front_right
-        delta_back_right = target_v_back_right - self.self.wheel_speeds.back_right
+        delta_front_left = target_v_front_left - self.wheel_speeds.front_left
+        delta_back_left = target_v_back_left - self.wheel_speeds.back_left
+        delta_front_right = target_v_front_right - self.wheel_speeds.front_right
+        delta_back_right = target_v_back_right - self.wheel_speeds.back_right
 
         front_left_signal_response = self.apply_proportional_control(delta_front_left)
         back_left_signal_response = self.apply_proportional_control(delta_back_left)
