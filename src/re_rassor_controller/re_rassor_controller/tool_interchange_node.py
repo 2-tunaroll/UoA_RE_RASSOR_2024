@@ -43,6 +43,7 @@ class ToolInterchange(Node):
         # check for current spike
         if self.SHUT_DOWN:
             self.kit.stepper1.release()
+            self.kit.stepper2.release()
             return
     
         # check that the motor is not already stepping
@@ -76,6 +77,7 @@ class ToolInterchange(Node):
         self.moving = True
         for _ in range(self.steps):
             self.kit.stepper1.onestep(direction=self.direction, style=stepper.INTERLEAVE)
+            self.kit.stepper2.onestep(direction=self.direction, style=stepper.INTERLEAVE)
             sleep(0.05)  # delay
         self.moving = False
          
@@ -87,7 +89,7 @@ def main(args=None):
         rclpy.spin(node)
     except KeyboardInterrupt:
         node.kit.stepper1.release()
-        pass
+        node.kit.stepper2.release()
     
     node.destroy_node()
     rclpy.shutdown()
