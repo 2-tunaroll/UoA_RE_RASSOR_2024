@@ -18,10 +18,9 @@ class WheelMotorDrive(Node):
         self.left_board = DFRobot_DC_Motor_IIC(1, 0x10)
         self.right_board = DFRobot_DC_Motor_IIC(1, 0x11)
 
+        # initialise the boards
         self.initialise_board(self.left_board, "10. left wheels")
         self.initialise_board(self.right_board, "11. right wheels")
-
-        # self.initialise_boards(self.left_board, self.right_board)
 
         # shutdown flag
         self.SHUT_DOWN = False
@@ -49,7 +48,6 @@ class WheelMotorDrive(Node):
         # publish wheel velocities
         self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
 
-
     def initialise_board(self, board, id):
 
         while board.begin() != board.STA_OK:    # Board begin and check board status
@@ -72,23 +70,6 @@ class WheelMotorDrive(Node):
 
         # sets the speed multipler for driving
         self.speed_multiplier = msg.data
-
-    # def initialise_boards(self, left_board, right_board):
-
-    #     for board in (left_board, right_board):
-
-    #         while board.begin() != board.STA_OK:    # Board begin and check board status
-    #             self.print_board_status(board)
-    #             print("board begin failed")
-    #             time.sleep(2)
-
-    #         board.set_encoder_enable(board.ALL)
-    #         board.set_moter_pwm_frequency(1000)
-
-    #         print("board begin success")
-    #         return True
-        
-    #     return False
 
     def print_board_status(self, board):
 
@@ -255,7 +236,8 @@ def main(args=None):
         rclpy.spin(right_wheel_board)
 
     except KeyboardInterrupt:
-        pass
+        left_wheel_board.motor_stop(left_wheel_board.ALL)
+        right_wheel_board.motor_stop(right_wheel_board.ALL)
 
     left_wheel_board.destroy_node()
     right_wheel_board.destroy_node()
