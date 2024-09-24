@@ -13,7 +13,7 @@ class TJointNode(Node):
         super().__init__('t_joint')
 
         # number of steps for each callback
-        self.steps = 10
+        self.steps = 5
 
         # variable to hold flag for shutting down motors
         self.SHUT_DOWN = False
