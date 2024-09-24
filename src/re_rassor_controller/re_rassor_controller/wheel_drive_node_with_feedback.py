@@ -101,8 +101,10 @@ class WheelMotorDrive(Node):
         # only send commands every 0.2 s
         if (current_time - self.last_called_time) > self.dt:
 
-            self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
+            self.calculate_motor_velocities(msg)
             self.last_called_time = current_time
+
+            print(f"FL: {self.v_front_left}, BL: {self.v_back_left}, FR: {self.v_front_right}, BR: {self.v_back_right}")
             
             self.drive_front_left(self.v_front_left)
             self.drive_back_left(self.v_back_left)
@@ -154,10 +156,7 @@ class WheelMotorDrive(Node):
         self.v_front_left = self.ease_speed(front_left_signal_response, self.v_front_left)
         self.v_back_left = self.ease_speed(back_left_signal_response, self.v_back_left)
         self.v_front_right = self.ease_speed(front_right_signal_response, self.v_front_right)
-        self.v_back_right = self.ease_speed(back_right_signal_response, self.v_back_right)
-
-        return self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right
-    
+        self.v_back_right = self.ease_speed(back_right_signal_response, self.v_back_right)    
     def apply_proportional_control(self, delta):
 
         motor_signal = self.k_p * delta
@@ -178,12 +177,10 @@ class WheelMotorDrive(Node):
             if new_speed > prev_speed:
                 # speeding up
                 corrected_speed = prev_speed + max_delta
-                print(f"corrected_speed: {corrected_speed}")
 
             else:
                 # slowing down
                 corrected_speed = prev_speed - max_delta
-                print(f"corrected_speed: {corrected_speed}")
 
         else:
             corrected_speed = new_speed
