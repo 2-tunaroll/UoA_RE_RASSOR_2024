@@ -32,7 +32,7 @@ class CurrentandPowerNode(Node):
         self.current_publisher_ = self.create_publisher(Float32, 'system_current', 10)
 
         self.timer_1 = self.create_timer(0.05, self.get_current_alert) # run every 0.05 s
-        self.timer_2 = self.create_timer(1, self.get_voltage_and_current) # run every 1s
+        self.timer_2 = self.create_timer(0.5, self.get_voltage_and_current) # run every 1s
 
     def get_voltage_and_current(self):
 
@@ -62,7 +62,7 @@ class CurrentandPowerNode(Node):
 
         # system current
         system_current = Float32()
-        system_current.data = self.ina260.current
+        system_current.data = self.ina260.current / 1000
         self.current_publisher_.publish(system_current)
 
     def get_current_alert(self):
@@ -70,9 +70,9 @@ class CurrentandPowerNode(Node):
         shutdown_flag = Bool()
 
         if self.ina260.alert_function_flag:
-            shutdown_flag = True
+            shutdown_flag.data = True
         else:
-            shutdown_flag = False
+            shutdown_flag.data = False
 
         self.motor_shutdown_publisher_.publish(shutdown_flag)
 
