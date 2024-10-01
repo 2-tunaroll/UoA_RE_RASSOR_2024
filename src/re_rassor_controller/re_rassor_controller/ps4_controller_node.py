@@ -185,27 +185,6 @@ class ControllerCommandPublisher(Node):
         vibrating_motor_msg = Int16()
         bucket_drum_msg = BucketDrum()
 
-        # TOOL INTERCHANGE
-        if data['buttons'][inputs.CIRCLE] == 1:
-
-            # Only toggle if the button wasn't previously pressed
-            if not self.circle_button_pressed and (current_time - self.circle_last_pressed_time > debounce_time):
-                self.circle_last_pressed_time = current_time
-
-                # Toggle the state
-                if self.t_joint_msg.t_joint.data == 'FRONT':
-                    self.t_joint_msg.t_joint.data = 'BACK'
-                elif self.t_joint_msg.t_joint.data == 'BACK':
-                    self.t_joint_msg.t_joint.data = 'FRONT'
-
-                # Set the flag to indicate the button is now pressed
-                self.circle_button_pressed = True
-
-        # Check if the button is released
-        elif data['buttons'][inputs.CIRCLE] == 0:
-            # Reset the flag when the button is released
-            self.circle_button_pressed = False
-
         # Toggle the mode of the interchange between manual and autonomous
         if (data['buttons'][inputs.SQUARE] == 1) and (current_time - self.square_last_pressed_time > debounce_time):
 
