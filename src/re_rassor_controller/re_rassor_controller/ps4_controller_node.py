@@ -16,7 +16,7 @@ class ControllerCommandPublisher(Node):
         self.controller_state_publisher_ = self.create_publisher(String, 'controller_state', 100)
 
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
-        self.t_joint_publisher_ = self.create_publisher(TJoint, 't_joint_cmd', 100)
+        self.t_joint_publisher_ = self.create_publisher(Int16MultiArray, 't_joint_cmd', 100)
         self.bucket_drum_publisher_ = self.create_publisher(Int16MultiArray, 'bucket_drum_cmd', 100)
         self.tool_interchange_publisher_ = self.create_publisher(Int16MultiArray, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
@@ -40,7 +40,7 @@ class ControllerCommandPublisher(Node):
         self.tool_interchange_msg.data = [0] * 2
         # self.tool_interchange_msg.mode.data = 'MANUAL'
         self.t_joint_msg = Int16MultiArray()
-        self.t_joint_msg.data = [0] * 2
+        self.t_joint_msg.data = [0] * 3
         # self.t_joint_msg.t_joint.data = 'FRONT'
 
         self.receive_data()
@@ -148,11 +148,11 @@ class ControllerCommandPublisher(Node):
             if not self.circle_button_pressed and (current_time - self.circle_last_pressed_time > debounce_time):
                 self.circle_last_pressed_time = current_time
 
-                # Toggle the state
-                if self.t_joint_msg.t_joint.data == 'FRONT':
-                    self.t_joint_msg.t_joint.data = 'BACK'
-                elif self.t_joint_msg.t_joint.data == 'BACK':
-                    self.t_joint_msg.t_joint.data = 'FRONT'
+                # toggle the t-joint selection
+                if self.t_joint_msg.data[0] == 0: # front
+                    self.t_joint_msg.data[0] = 1 # back
+                elif self.t_joint_msg.data[0] == 1: # back
+                    self.t_joint_msg.data[0] = 0 # front
 
                 # Set the flag to indicate the button is now pressed
                 self.circle_button_pressed = True
@@ -166,15 +166,15 @@ class ControllerCommandPublisher(Node):
         if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
             
             # only publish up or down at one time
-            if self.t_joint_msg.down != 1:
-                self.t_joint_msg.up = data['buttons'][inputs.R1] # up
+            if self.t_joint_msg.data[1] != 1:
+                self.t_joint_msg.data[2] = data['buttons'][inputs.R1] # up
 
-            if self.t_joint_msg.up != 1:
-                self.t_joint_msg.down = data['buttons'][inputs.L1] # down
+            if self.t_joint_msg.data[2] != 1:
+                self.t_joint_msg.data[1] = data['buttons'][inputs.L1] # down
 
         else:
-            self.t_joint_msg.up = 0
-            self.t_joint_msg.down = 0
+            self.t_joint_msg.data[1] = 0
+            self.t_joint_msg.data[2] = 0
         
         self.t_joint_publisher_.publish(self.t_joint_msg)
         
@@ -188,27 +188,6 @@ class ControllerCommandPublisher(Node):
         # Bucket drum message: Array where i=0 is backwards, i=1 is forwards
         bucket_drum_msg = Int16MultiArray()
         bucket_drum_msg.data = [0] * 2
-
-        # TOOL INTERCHANGE
-        if data['buttons'][inputs.CIRCLE] == 1:
-
-            # Only toggle if the button wasn't previously pressed
-            if not self.circle_button_pressed and (current_time - self.circle_last_pressed_time > debounce_time):
-                self.circle_last_pressed_time = current_time
-
-                # Toggle the state
-                if self.t_joint_msg.t_joint.data == 'FRONT':
-                    self.t_joint_msg.t_joint.data = 'BACK'
-                elif self.t_joint_msg.t_joint.data == 'BACK':
-                    self.t_joint_msg.t_joint.data = 'FRONT'
-
-                # Set the flag to indicate the button is now pressed
-                self.circle_button_pressed = True
-
-        # Check if the button is released
-        elif data['buttons'][inputs.CIRCLE] == 0:
-            # Reset the flag when the button is released
-            self.circle_button_pressed = False
 
         # Toggle the mode of the interchange between manual and autonomous
         if (data['buttons'][inputs.SQUARE] == 1) and (current_time - self.square_last_pressed_time > debounce_time):
