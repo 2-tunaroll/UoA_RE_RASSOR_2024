@@ -1,13 +1,12 @@
 import socket
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Int16, Float32
+from std_msgs.msg import String, Int16, Float32, Int16MultiArray
 import time
 from geometry_msgs.msg import Twist
 import json
 import re_rassor_controller.lib.controller_input_defs as inputs
-
-from custom_msgs.msg import TJoint, BucketDrum, Interchange
+from custom_msgs.msg import TJoint, Interchange
 
 class ControllerCommandPublisher(Node):
     def __init__(self):
@@ -18,7 +17,7 @@ class ControllerCommandPublisher(Node):
 
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(TJoint, 't_joint_cmd', 100)
-        self.bucket_drum_publisher_ = self.create_publisher(BucketDrum, 'bucket_drum_cmd', 100)
+        self.bucket_drum_publisher_ = self.create_publisher(Int16MultiArray, 'bucket_drum_cmd', 100)
         self.tool_interchange_publisher_ = self.create_publisher(Interchange, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
@@ -183,7 +182,9 @@ class ControllerCommandPublisher(Node):
         debounce_time = 0.2 # seconds
         
         vibrating_motor_msg = Int16()
-        bucket_drum_msg = BucketDrum()
+
+        # Bucket drum message: Array where i=0 is backwards, i=1 is forwards
+        bucket_drum_msg = Int16MultiArray()
 
         # TOOL INTERCHANGE
         if data['buttons'][inputs.CIRCLE] == 1:
@@ -237,13 +238,13 @@ class ControllerCommandPublisher(Node):
             
             # Bucket drum
             # only publish forward or back at one time
-            if bucket_drum_msg.backward != 1:
+            if bucket_drum_msg.data[0] != 1:
                 # print(Int16(data['buttons'][inputs.UP]))
-                bucket_drum_msg.forward = data['buttons'][inputs.UP] # forward
+                bucket_drum_msg.data[1] = data['buttons'][inputs.UP] # forward
                 # print(bucket_drum_msg.forward)
 
-            if bucket_drum_msg.forward != 1:
-                bucket_drum_msg.backward = data['buttons'][inputs.DOWN] # backward
+            if bucket_drum_msg.data[1] != 1:
+                bucket_drum_msg.data[0]= data['buttons'][inputs.DOWN] # backward
             
             # Vibrating motor
             vibrating_motor_msg.data = data['buttons'][inputs.TRIANGLE]
