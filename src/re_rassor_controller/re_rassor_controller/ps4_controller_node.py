@@ -18,7 +18,7 @@ class ControllerCommandPublisher(Node):
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(TJoint, 't_joint_cmd', 100)
         self.bucket_drum_publisher_ = self.create_publisher(Int16MultiArray, 'bucket_drum_cmd', 100)
-        self.tool_interchange_publisher_ = self.create_publisher(Interchange, 'tool_interchange_cmd', 10)
+        self.tool_interchange_publisher_ = self.create_publisher(Int16MultiArray, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
 
@@ -36,10 +36,12 @@ class ControllerCommandPublisher(Node):
         self.square_button_pressed = False
 
         # create message classes for tool interchange and t-joint
-        self.tool_interchange_msg = Interchange()
-        self.tool_interchange_msg.mode.data = 'MANUAL'
-        self.t_joint_msg = TJoint()
-        self.t_joint_msg.t_joint.data = 'FRONT'
+        self.tool_interchange_msg = Int16MultiArray()
+        self.tool_interchange_msg.data = [0] * 2
+        # self.tool_interchange_msg.mode.data = 'MANUAL'
+        self.t_joint_msg = Int16MultiArray()
+        self.t_joint_msg.data = [0] * 2
+        # self.t_joint_msg.t_joint.data = 'FRONT'
 
         self.receive_data()
 
@@ -185,6 +187,7 @@ class ControllerCommandPublisher(Node):
 
         # Bucket drum message: Array where i=0 is backwards, i=1 is forwards
         bucket_drum_msg = Int16MultiArray()
+        bucket_drum_msg.data = [0] * 2
 
         # TOOL INTERCHANGE
         if data['buttons'][inputs.CIRCLE] == 1:
@@ -213,10 +216,10 @@ class ControllerCommandPublisher(Node):
             self.square_last_pressed_time = current_time
 
             # toggle the interchange
-            if self.tool_interchange_msg.mode.data == 'MANUAL':
-                self.tool_interchange_msg.mode.data = 'AUTO'
-            elif self.tool_interchange_msg.mode.data == 'AUTO':
-                self.tool_interchange_msg.mode.data = 'MANUAL'
+            if self.tool_interchange_msg.data[0] == 0: # manual
+                self.tool_interchange_msg.data[0] = 1 # auto
+            elif self.tool_interchange_msg.data[0] == 1: # auto
+                self.tool_interchange_msg.data[0] = 0 # manual
 
             self.square_button_pressed = True
 
@@ -227,10 +230,10 @@ class ControllerCommandPublisher(Node):
 
         # Enable/disable the interchange
         if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.cross_last_pressed_time > debounce_time):
-            self.tool_interchange_msg.toggle = 1
+            self.tool_interchange_msg.data[1] = 1
             self.cross_last_pressed_time = current_time
         else:
-            self.tool_interchange_msg.toggle = 0        
+            self.tool_interchange_msg.data[1] = 0        
 
         # TOOLS
         # must be pressing L2 and R2 to deliver power
