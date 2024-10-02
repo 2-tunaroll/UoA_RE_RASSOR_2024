@@ -12,7 +12,7 @@ class ToolControlNode(Node):
         super().__init__('tool_control_node')
 
         # get instance of board
-        self.board = DFRobot_DC_Motor_IIC(1, 0x12)
+        self.board = DFRobot_DC_Motor_IIC(1, 0x10)
 
         # update time
         self.dt = 0.2
