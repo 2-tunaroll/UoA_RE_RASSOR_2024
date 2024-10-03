@@ -2,10 +2,10 @@ from rclpy.node import Node
 from std_msgs.msg import Bool, Float32
 from geometry_msgs.msg import Twist
 from custom_msgs.msg import WheelSpeeds
-import board
 import rclpy
 import time
 from math import pi
+import atexit
 
 from re_rassor_controller.lib.DFRobot_RaspberryPi_DC_Motor import DFRobot_DC_Motor_IIC
 
@@ -21,6 +21,8 @@ class WheelMotorDrive(Node):
         # initialise the boards
         self.initialise_board(self.left_board, "10. left wheels")
         self.initialise_board(self.right_board, "11. right wheels")
+
+        self.motor_shutdown()
 
         # shutdown flag
         self.SHUT_DOWN = False
@@ -56,6 +58,7 @@ class WheelMotorDrive(Node):
             time.sleep(2)
 
         board.set_encoder_enable(board.ALL)
+        board.set_encoder_reduction_ratio(board.ALL, 90)    # Set selected DC motor encoder reduction ratio, test motor reduction ratio is 43.8
         board.set_moter_pwm_frequency(1000)
 
         print(f"{id} board begin success")
@@ -87,8 +90,7 @@ class WheelMotorDrive(Node):
     def listener_callback(self, msg):
 
         if self.SHUT_DOWN:
-            self.left_board.motor_stop(self.left_board.ALL)
-            self.right_board.motor_stop(self.right_board.ALL)
+            self.motor_shutdown()
             return
         
         current_time = time.time()
@@ -96,7 +98,7 @@ class WheelMotorDrive(Node):
         # only send commands every 0.5 s
         if (current_time - self.last_called_time) > self.dt:
 
-            self.v_front_left, self.v_back_left, self.v_front_right, self.v_back_right = self.calculate_motor_velocities(msg)
+            self.calculate_motor_velocities(msg)
             self.last_called_time = current_time
 
             self.drive_front_left(self.v_front_left)
@@ -104,8 +106,7 @@ class WheelMotorDrive(Node):
             self.drive_front_right(self.v_front_right)
             self.drive_back_right(self.v_back_right)
 
-        # get velocity feedback from encoders
-        self.get_velocity_feedback()
+
 
     def calculate_motor_velocities(self, msg):
 
@@ -132,6 +133,9 @@ class WheelMotorDrive(Node):
         # right wheels
         raw_v_front_right = (-0.5*x_cmd - 0.5*turn_component)*self.speed_multiplier
         raw_v_back_right = (-0.5*x_cmd - 0.5*turn_component)*self.speed_multiplier
+
+        # get velocity feedback from encoders
+        self.get_velocity_feedback()
 
         # ease the speeds
         self.v_front_left = self.ease_speed(raw_v_front_left, self.v_front_left)
@@ -214,6 +218,10 @@ class WheelMotorDrive(Node):
 
         right_front_speed, right_back_speed = right_board.get_encoder_speed(right_board.ALL)
 
+        # reverse speeds for right wheels
+        right_front_speed = -1*right_front_speed
+        right_back_speed = -1*right_back_speed
+
         # convert from rpm to m/s
         speed_m_sec = lambda speed_rpm: 0.11 * speed_rpm *2*pi/60
 
@@ -224,24 +232,25 @@ class WheelMotorDrive(Node):
 
         self.speed_publisher_.publish(wheel_speeds)
 
+    def motor_shutdown(self):
+        self.left_board.motor_stop(self.left_board.ALL)
+        self.right_board.motor_stop(self.right_board.ALL)
+
 def main(args=None):
 
     rclpy.init(args=args)
     
-    left_wheel_board = WheelMotorDrive()
-    right_wheel_board = WheelMotorDrive()
+    node = WheelMotorDrive()
+
+    atexit.register(node.motor_shutdown)
     
     try:
-        rclpy.spin(left_wheel_board)
-        rclpy.spin(right_wheel_board)
+        rclpy.spin(node)
 
     except KeyboardInterrupt:
-        left_wheel_board.motor_stop(left_wheel_board.ALL)
-        right_wheel_board.motor_stop(right_wheel_board.ALL)
+        pass
 
-    left_wheel_board.destroy_node()
-    right_wheel_board.destroy_node()
-
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
