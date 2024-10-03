@@ -11,13 +11,13 @@ from gpiozero import DigitalInputDevice
 class ToolInterchange(Node):
     def __init__(self):
         super().__init__('tool_interchange')
-
+        
         self.kit = MotorKit(i2c=board.I2C())
 
         # # initialise direction as forward
-        # self.direction = stepper.BACKWARD
+        self.direction = stepper.FORWARD
         # number of steps
-        self.steps = 30
+        self.steps = 26
         # moving flag - so messages are not overloaded and all the required steps complete
         self.moving = False
         # shutdown flag
@@ -55,12 +55,12 @@ class ToolInterchange(Node):
 
             # set direction to reverse for next time it is called
             # if it was just connected
-            # if self.direction == stepper.FORWARD:
-            #     self.is_connected = True
-            #     self.direction = stepper.BACKWARD
-            # else: # if it was just disconnected
-            #     self.direction = stepper.FORWARD
-            #     self.is_connected = False
+            if self.direction == stepper.FORWARD:
+                self.is_connected = True
+                self.direction = stepper.BACKWARD
+            else: # if it was just disconnected
+                self.direction = stepper.FORWARD
+                self.is_connected = False
 
         elif msg.mode.data == "AUTO":
             if not self.proximity_sensor.value and not self.is_connected:
@@ -68,7 +68,7 @@ class ToolInterchange(Node):
                 self.is_connected = True
     
             if msg.toggle == 1 and self.is_connected:
-                # self.direction = stepper.BACKWARD
+                self.direction = stepper.BACKWARD
                 self.step()
                 self.is_connected = False
 
