@@ -23,8 +23,8 @@ class ControllerCommandPublisher(Node):
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
 
-        # set default speed multiplier to 50%
-        self.prev_speed_multiplier = 50.0
+        # set default speed multiplier to 25%
+        self.prev_speed_multiplier = 0.25
         # set debounce time for button presses
         self.debounce_time = 0.5 # seconds
         self.circle_last_pressed_time = 0 
@@ -106,14 +106,14 @@ class ControllerCommandPublisher(Node):
         # self.prev_speed_multiplier
     
         if data['buttons'][inputs.SHARE] == 1:
-            speed_mode_msg.data = 25.0
-            self.prev_speed_multiplier = 25.0
+            speed_mode_msg.data = 0.25
+            self.prev_speed_multiplier = 0.25
         elif data['buttons'][inputs.TOUCH_PAD] == 1:
-            speed_mode_msg.data = 50.0
-            self.prev_speed_multiplier = 50.0
+            speed_mode_msg.data = 0.50
+            self.prev_speed_multiplier = 0.50
         elif data['buttons'][inputs.OPTIONS] == 1:
-            speed_mode_msg.data = 100.0
-            self.prev_speed_multiplier = 100.0
+            speed_mode_msg.data = 1.0
+            self.prev_speed_multiplier = 1.0
         else:
             # if no selection keep the previous speed multiplier
             speed_mode_msg.data = self.prev_speed_multiplier
@@ -125,12 +125,20 @@ class ControllerCommandPublisher(Node):
         if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
 
             # velocity: forward and back
-            if data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.05 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.05:
+            if data['axes'][inputs.LEFT_JOY_HORIZONTAL] < 0.5 or data['axes'][inputs.LEFT_JOY_HORIZONTAL] > -0.5:
                 velocity_msg.linear.x = data['axes'][inputs.LEFT_JOY_VERTICAL]
 
             # velocity: left and right
-            if (data['axes'][inputs.LEFT_JOY_HORIZONTAL] > 0.05 or data['axes'][inputs.LEFT_JOY_HORIZONTAL] < -0.05):
+            elif data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.5 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.5:
                 velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
+
+            # # velocity: forward and back
+            # if data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.05 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.05:
+            #     velocity_msg.linear.x = data['axes'][inputs.LEFT_JOY_VERTICAL]
+
+            # # velocity: left and right
+            # if (data['axes'][inputs.LEFT_JOY_HORIZONTAL] > 0.05 or data['axes'][inputs.LEFT_JOY_HORIZONTAL] < -0.05):
+            #     velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
 
         self.velocity_publisher_.publish(velocity_msg)
         self.speed_mode_publisher_.publish(speed_mode_msg)
