@@ -2,11 +2,10 @@ from rclpy.node import Node
 from std_msgs.msg import Bool, Float32
 from geometry_msgs.msg import Twist
 from custom_msgs.msg import WheelSpeeds
-import board
 import rclpy
 import time
 from math import pi
-
+from re_rassor_controller.re_rassor_controller.lib.roboclaw_3 import Roboclaw
 
 class RoboClawMotorDrive(Node):
     def __init__(self):
@@ -14,15 +13,17 @@ class RoboClawMotorDrive(Node):
         super().__init__('roboclaw_drive')
 
         # motor controller boards
+        self.addresses = [0x80]
+        self.roboclaw_back = Roboclaw("/dev/ttyS0", 38400)
 
         # initialise the boards
-
+        self.roboclaw_back.Open()
 
         # shutdown flag
         self.SHUT_DOWN = False
 
         # speed multiplier: initialise to 25%
-        self.speed_multiplier = 25
+        self.speed_multiplier = 0.25
 
         # # store previous speed values
         # self.v_front_left = 0
@@ -30,21 +31,19 @@ class RoboClawMotorDrive(Node):
         # self.v_front_right = 0
         # self.v_back_right = 0
 
-        # # update time
-        # self.dt = 0.2
+        # update time
+        self.dt = 0.2
 
-        # self.last_called_time = time.time()
+        self.last_called_time = time.time()
 
         # subscribe to current sensing command
         self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
         # subscribe to velocity cmds
-        self.subscription_2 = self.create_subscription(Twist, 'cmd_vel', self.listener_callback, 10)
+        self.subscription_2 = self.create_subscription(Twist, 'cmd_vel', self.drive_cmd_callback, 10)
         # subscribe to speed mode
         self.subscription_3 = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
         # publish wheel velocities
         self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
-
-   
 
     def shutdown_callback(self, msg):
 
@@ -57,8 +56,34 @@ class RoboClawMotorDrive(Node):
         # sets the speed multipler for driving
         self.speed_multiplier = msg.data
 
-  
+    def drive_cmd_callback(self, msg):
 
+        # chekck shutdown flag
+        if self.SHUT_DOWN:
+            # stop motors
+            return
+        
+        current_time = time.time()
+
+        # only send commands every 0.5 s
+        if (current_time - self.last_called_time) > self.dt:
+
+            x_cmd = msg.linear.x * 127 * self.speed_multiplier
+            z_cmd = msg.angular.z * 127 * self.speed_multiplier
+
+            if z_cmd > 0:
+                # turn right
+                self.roboclaw_back.TurnRightMixed(self.addresses[0], z_cmd)
+            elif z_cmd < 0:
+                # turn left
+                self.roboclaw_back.TurnLeftMixed(self.addresses[0], abs(z_cmd))
+            elif x_cmd < 0:
+                # drive backward
+                self.roboclaw_back.BackwardMixed(self.addresses[0], x_cmd)
+            else:
+                # drive forward (or stop)
+                self.roboclaw_back.ForwardMixed(self.addresses[0], abs(x_cmd))
+        
 def main(args=None):
 
     rclpy.init(args=args)
