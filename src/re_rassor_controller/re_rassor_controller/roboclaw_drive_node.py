@@ -44,8 +44,10 @@ class RoboClawMotorDrive(Node):
         self.subscription_2 = self.create_subscription(Twist, 'cmd_vel', self.drive_cmd_callback, 10)
         # subscribe to speed mode
         self.subscription_3 = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
-        # publish wheel velocities
+
+        # publish wheel speeds
         self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
+        self.timer = self.create_timer(1, self.publish_wheel_speeds)
 
     def shutdown_callback(self, msg):
 
@@ -89,6 +91,14 @@ class RoboClawMotorDrive(Node):
                 self.roboclaw_back.TurnLeftMixed(self.addresses[0], abs(z_cmd))
             else: # turn right
                 self.roboclaw_back.TurnRightMixed(self.addresses[0], z_cmd)
+
+    def publish_wheel_speeds(self):
+
+        # back wheels
+        m1speed = self.roboclaw_back.ReadSpeedM1(self.addresses[0])
+        m2speed = self.roboclaw_back.ReadSpeedM2(self.addresses[0])
+
+        print(f"m1: {m1speed}, m2: {m2speed}")
         
 def main(args=None):
 
