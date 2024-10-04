@@ -5,7 +5,9 @@ from custom_msgs.msg import WheelSpeeds
 import rclpy
 import time
 from math import pi
-from re_rassor_controller.re_rassor_controller.lib.roboclaw_3 import Roboclaw
+from re_rassor_controller.lib.roboclaw_3 import Roboclaw
+import atexit
+
 
 class RoboClawMotorDrive(Node):
     def __init__(self):
@@ -14,9 +16,9 @@ class RoboClawMotorDrive(Node):
 
         # motor controller boards
         self.addresses = [0x80]
-        self.roboclaw_back = Roboclaw("/dev/ttyS0", 38400)
+        self.roboclaw_back = Roboclaw("/dev/serial1", 38400)
 
-        # initialise the boards
+        # # initialise the boards
         self.roboclaw_back.Open()
 
         # shutdown flag
@@ -32,7 +34,7 @@ class RoboClawMotorDrive(Node):
         # self.v_back_right = 0
 
         # update time
-        self.dt = 0.2
+        self.dt = 0.5
 
         self.last_called_time = time.time()
 
@@ -56,11 +58,16 @@ class RoboClawMotorDrive(Node):
         # sets the speed multipler for driving
         self.speed_multiplier = msg.data
 
+    def motor_shutdown(self):
+        self.roboclaw_back.ForwardMixed(self.addresses[0], 0)
+        self.roboclaw_back.TurnLeftMixed(self.addresses[0], 0)
+
     def drive_cmd_callback(self, msg):
 
         # chekck shutdown flag
         if self.SHUT_DOWN:
             # stop motors
+            self.motor_shutdown()
             return
         
         current_time = time.time()
@@ -68,27 +75,28 @@ class RoboClawMotorDrive(Node):
         # only send commands every 0.5 s
         if (current_time - self.last_called_time) > self.dt:
 
-            x_cmd = msg.linear.x * 127 * self.speed_multiplier
-            z_cmd = msg.angular.z * 127 * self.speed_multiplier
+            x_cmd = int(msg.linear.x * 127 * self.speed_multiplier)
+            z_cmd = int(msg.angular.z * 127 * self.speed_multiplier)
 
-            if z_cmd > 0:
-                # turn right
-                self.roboclaw_back.TurnRightMixed(self.addresses[0], z_cmd)
-            elif z_cmd < 0:
-                # turn left
-                self.roboclaw_back.TurnLeftMixed(self.addresses[0], abs(z_cmd))
-            elif x_cmd < 0:
-                # drive backward
-                self.roboclaw_back.BackwardMixed(self.addresses[0], x_cmd)
-            else:
-                # drive forward (or stop)
+            self.last_called_time = time.time()
+
+            if x_cmd <= 0: # drive forward (or stop)
                 self.roboclaw_back.ForwardMixed(self.addresses[0], abs(x_cmd))
+            else:
+                self.roboclaw_back.BackwardMixed(self.addresses[0], abs(x_cmd))
+
+            if z_cmd <= 0: # turn left
+                self.roboclaw_back.TurnLeftMixed(self.addresses[0], abs(z_cmd))
+            else: # turn right
+                self.roboclaw_back.TurnRightMixed(self.addresses[0], z_cmd)
         
 def main(args=None):
 
     rclpy.init(args=args)
     
     node = RoboClawMotorDrive()
+
+    atexit.register(node.motor_shutdown)
     
     try:
         rclpy.spin(node)

@@ -124,21 +124,11 @@ class ControllerCommandPublisher(Node):
         # must be pressing L2 and R2 to deliver power
         if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
 
-            # velocity: forward and back
-            if data['axes'][inputs.LEFT_JOY_HORIZONTAL] < 0.5 or data['axes'][inputs.LEFT_JOY_HORIZONTAL] > -0.5:
+            if (abs(data['axes'][inputs.LEFT_JOY_VERTICAL]) > 0.25):
                 velocity_msg.linear.x = data['axes'][inputs.LEFT_JOY_VERTICAL]
 
-            # velocity: left and right
-            elif data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.5 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.5:
+            if (abs(data['axes'][inputs.LEFT_JOY_HORIZONTAL]) > 0.25):
                 velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
-
-            # # velocity: forward and back
-            # if data['axes'][inputs.LEFT_JOY_VERTICAL] > 0.05 or data['axes'][inputs.LEFT_JOY_VERTICAL] < -0.05:
-            #     velocity_msg.linear.x = data['axes'][inputs.LEFT_JOY_VERTICAL]
-
-            # # velocity: left and right
-            # if (data['axes'][inputs.LEFT_JOY_HORIZONTAL] > 0.05 or data['axes'][inputs.LEFT_JOY_HORIZONTAL] < -0.05):
-            #     velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
 
         self.velocity_publisher_.publish(velocity_msg)
         self.speed_mode_publisher_.publish(speed_mode_msg)
