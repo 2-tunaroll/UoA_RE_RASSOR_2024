@@ -1,12 +1,15 @@
-from rclpy.node import Node
-from std_msgs.msg import Bool, Float32
-from geometry_msgs.msg import Twist
-from custom_msgs.msg import WheelSpeeds
-import rclpy
-import time
-from math import pi
-from re_rassor_controller.lib.roboclaw_3 import Roboclaw
 import atexit
+import time
+
+from custom_msgs.msg import WheelSpeeds
+from geometry_msgs.msg import Twist
+
+import rclpy
+from rclpy.node import Node
+
+from re_rassor_controller.re_rassor_controller.lib.roboclaw_3 import Roboclaw
+
+from std_msgs.msg import Bool, Float32
 
 
 class RoboClawMotorDrive(Node):
@@ -16,7 +19,7 @@ class RoboClawMotorDrive(Node):
 
         # motor controller boards
         self.addresses = [0x80]
-        self.roboclaw_back = Roboclaw("/dev/serial1", 38400)
+        self.roboclaw_back = Roboclaw('/dev/ttyS0', 38400)
 
         # # initialise the boards
         self.roboclaw_back.Open()
@@ -39,9 +42,11 @@ class RoboClawMotorDrive(Node):
         self.last_called_time = time.time()
 
         # subscribe to current sensing command
-        self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
+        self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd',
+                                                       self.shutdown_callback, 10)
         # subscribe to velocity cmds
-        self.subscription_2 = self.create_subscription(Twist, 'cmd_vel', self.drive_cmd_callback, 10)
+        self.subscription_2 = self.create_subscription(Twist, 'cmd_vel',
+                                                       self.drive_cmd_callback, 10)
         # subscribe to speed mode
         self.subscription_3 = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
 
@@ -71,7 +76,7 @@ class RoboClawMotorDrive(Node):
             # stop motors
             self.motor_shutdown()
             return
-        
+
         current_time = time.time()
 
         # only send commands every 0.5 s
@@ -103,7 +108,7 @@ class RoboClawMotorDrive(Node):
 def main(args=None):
 
     rclpy.init(args=args)
-    
+
     node = RoboClawMotorDrive()
 
     atexit.register(node.motor_shutdown)
@@ -117,6 +122,7 @@ def main(args=None):
     node.destroy_node()
 
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
