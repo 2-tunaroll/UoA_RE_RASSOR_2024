@@ -1,3 +1,9 @@
+"""
+PS4 controller node.
+
+Establishes the client-server connection, gets controller inputs,
+and publishes ROS topics based on those inputs.
+"""
 import json
 import socket
 import time
@@ -14,12 +20,14 @@ from std_msgs.msg import Float32, Int16, String
 
 
 class ControllerCommandPublisher(Node):
+    """Receives controller commands, converts them to topics and publishes them."""
+
     def __init__(self):
 
         super().__init__('controller_command_publisher')
 
+        # ROS topics to publish from the controller inputs
         self.controller_state_publisher_ = self.create_publisher(String, 'controller_state', 100)
-
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(TJoint, 't_joint_cmd', 100)
         self.bucket_drum_publisher_ = self.create_publisher(BucketDrum, 'bucket_drum_cmd', 100)
@@ -30,7 +38,7 @@ class ControllerCommandPublisher(Node):
 
         # set default speed multiplier to 25%
         self.prev_speed_multiplier = 0.25
-        # set debounce time for button presses
+        # set debounce time and last pressed time for button presses
         self.debounce_time = 0.5  # seconds
         self.circle_last_pressed_time = 0
         self.square_last_pressed_time = 0
@@ -47,9 +55,11 @@ class ControllerCommandPublisher(Node):
         self.t_joint_msg = TJoint()
         self.t_joint_msg.t_joint.data = 'FRONT'
 
+        # get controller input
         self.receive_data()
 
     def receive_data(self):
+        """Listen for the client, receive controller inputs and convert them to ROS messages."""
         # Set the IP address and port for the server
         server_ip = '0.0.0.0'  # Listen on all available network interfaces
         server_port = 8000  # Choose a port number that is not in use
@@ -94,7 +104,7 @@ class ControllerCommandPublisher(Node):
                     self.get_logger().error(f'Unexpected error: {e}')
 
     def extract_json(self, buffer):
-        """Extract and returns a complete JSON string from the buffer."""
+        """Extract and return a complete JSON string from the buffer."""
         parts = buffer.split(b'\n', 1)
         if len(parts) > 1:
             complete_json = parts[0].decode('utf-8').strip()
@@ -104,7 +114,7 @@ class ControllerCommandPublisher(Node):
             return None, buffer
 
     def get_driving_commands(self, data):
-
+        """Process and publish commands for driving."""
         # set the speed multiplier for driving the wheels
         speed_mode_msg = Float32()
 
@@ -137,7 +147,7 @@ class ControllerCommandPublisher(Node):
         self.speed_mode_publisher_.publish(speed_mode_msg)
 
     def get_t_joint_commands(self, data):
-
+        """Process and publish commands for the t-joints."""
         current_time = time.time()
         debounce_time = 0.5  # seconds
 
@@ -182,7 +192,7 @@ class ControllerCommandPublisher(Node):
         self.t_joint_publisher_.publish(self.t_joint_msg)
 
     def get_tool_commands(self, data):
-
+        """Process and publish commands for powered tools and tool interchange."""
         current_time = time.time()
         debounce_time = 0.2  # seconds
 

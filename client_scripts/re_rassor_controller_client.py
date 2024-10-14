@@ -1,3 +1,9 @@
+"""
+RE-RASSOR client script.
+Before running, change line 19 to the Rapsberry Pi IP address, and connect PS4 controller
+via USB or Bluetooth.
+"""
+
 import pygame
 import socket
 import json
@@ -17,7 +23,7 @@ sock.connect((HOST, PORT))
 print(f"Connected to Raspberry Pi at {HOST}:{PORT}")
 
 def send_command(data):
-    # gets commands and sends them over the socket connection
+    """Gets commands and sends them over the socket connection."""
     message = json.dumps(data)
     sock.sendall((message + "\n").encode('utf-8'))
 
