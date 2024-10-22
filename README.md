@@ -1,4 +1,4 @@
-#  (RE-RASSOR)
+#  UoA RE-RASSOR 2024
 
 **Description:**  
 This repositry contains the source code for the University of Adelaide's 2024 iteration of the Research & Education - Regolith Advanced Surface Systems Operations Robot (RE-RASSOR) project. The RE-RASSOR is a small-scale version of a lunar rover, that uses a variety of interchanging tools for excavation and construction.
