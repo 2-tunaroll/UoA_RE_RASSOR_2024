@@ -26,7 +26,7 @@ Established by the Florida Space Institute, the RE-RASSOR program involves inter
 
 ## System Requirements
 - **Hardware:** Raspberry Pi 5, with the required hardware and battery attached and configuration mentioned below, PS4 controller, external laptop client.
-- **Software:** Ubuntu 24.04, ROS 2 Jazzy Jalisco, Python 3.12 (on Raspberry Pi and external laptop), requirements.txt
+- **Software:** Ubuntu 24.04, ROS 2 Jazzy Jalisco, Python 3.12 (on Raspberry Pi and external laptop), [requirements.txt](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/requirements.txt).
 
 ## Raspberry Pi Configuration
 The following configuration of the Raspbery Pi 5 is required for the software to run and connect to the DroneDeploy user interface. Note that while all of these items must be completed, they don't need to be implemented in the listed order.
@@ -56,16 +56,15 @@ Note that the item at address 70 is to be ignored; it is the "all call" address 
 12. Install the ROS2 plugin for DroneDeploy: https://docs-automate.dronedeploy.com/robotics-toolkit/agent-plugins/ros2}. Contact DroneDeploy to retrieve a custom build for ROS 2 Jazzy if not yet available.
 13. Install GStreamer to enable camera streaming to DroneDeploy: https://gstreamer.freedesktop.org/download/#linux
 
-## Installation & Usage
-
+## Building the Project
 ### Dependencies
 
 
 ### Building the Project
 
-
 ### Setting Up Services
 Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in [systemd_files](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main), and need to be placed in `/etc/systemd/system` on the Raspberry Pi. Then enable the services: `sudo systemctl enable re-rassor-sensors.service`; `sudo systemctl enable re-rassor-controller.service`.
+
 
 ## User Guide
 ### Prerequisites
