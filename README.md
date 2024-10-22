@@ -59,12 +59,12 @@ Note that the item at address 70 is to be ignored; it is the "all call" address 
 
 ## Installation & Usage
 
-**Dependencies**
+### Dependencies
 
-**Building the Project**
+### Building the Project
 
 
-**Setting Up Services**
+### Setting Up Services
 Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in (/systemd_files), and need to be placed in `/etc/systemd/system` on the Raspberry Pi.
 
 
@@ -73,14 +73,14 @@ Run    colcon build --packages-select <package\_name>} from the root ROS workspa
     \texttt{sudo systemctl restart <servicename>}; \texttt{systemctl is-enabled <servicename>}
 
 ## User Guide
-**Prerequisites**
+### Prerequisites
 1. Hardware and software configured RE-RASSOR with sufficiently charged 14.8V LiPo battery attached.
 2. Access to the project's DroneDeploy dashboard.
 3. Known IP address of Raspberry Pi. If not known, can open the Shell tab in DroneDeploy and run `hostname -I` to retrieve it.
 4. Laptop with connected PS4 controller, /ps4_controller_node.py script and associated dependencies downloaded. Enter the IP address of the Pi on line 12.
 5. Raspberry Pi and laptop connected to the same network. The Raspberry Pi should automatically connect to UofA (if available) on startup, but will need to be manually connected to another network if required, e.g. personal hotspot. Note that the device DroneDeploy is running on does not require connection to the same network, but the device that the PS4 controller is connected to does. (But these will often be the same device).
 
-**Startup & Operating Procedure**
+### *Startup & Operating Procedure
 1. Turn on RE-RASSOR AUX switch – this just turns on the Pi and sensors.
 2. Verify that sensors are working and visible along with camera feed on the DroneDeploy dashboard.
 3. Turn on RE-RASSOR PWR switch – this enables power delivery to the motors. 
@@ -90,7 +90,7 @@ Run    colcon build --packages-select <package\_name>} from the root ROS workspa
 ![RE-RASSOR PS4 controller input mapping](images/ps4_controller_map.png)
 7. While operating, continuously monitor the sensors on the dashboard, especially system current and battery voltage. Switch off the main power switch immediately in the case of unexpected/dangerous behaviour. See below for troubleshooting steps.
 
-**Troubleshooting Tips**
+### Troubleshooting Tips
 Below are some tips that may help investigate and fix common issues with operating the RE-RASSOR. These steps require establishing an SSH connection with the Raspberry Pi. To do this, open a terminal and run `ssh re-rassor@<IP\_ADDRESS>` (find IP address from DroneDeploy shell if unknown). Alternatively, the Raspberry Pi can be connected directly to a monitor, keyboard and mouse to access the graphical user interface.
 
 **Loss of connection to DroneDeploy:** This may require restarting the rocos agent: `sudo systemctl restart rocos-agent`. Also ensure that the robot is connected to the internet.
