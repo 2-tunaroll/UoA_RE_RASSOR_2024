@@ -56,21 +56,16 @@ Note that the item at address 70 is to be ignored; it is the "all call" address 
 12. Install the ROS2 plugin for DroneDeploy: https://docs-automate.dronedeploy.com/robotics-toolkit/agent-plugins/ros2}. Contact DroneDeploy to retrieve a custom build for ROS 2 Jazzy if not yet available.
 13. Install GStreamer to enable camera streaming to DroneDeploy: https://gstreamer.freedesktop.org/download/#linux
 
-
 ## Installation & Usage
 
 ### Dependencies
+
 
 ### Building the Project
 
 
 ### Setting Up Services
-Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in (/systemd_files), and need to be placed in `/etc/systemd/system` on the Raspberry Pi.
-
-
-
-Run    colcon build --packages-select <package\_name>} from the root ROS workspace directory. Then restart the relevant services and confirm they are enabled for the next time the robot starts up:
-    \texttt{sudo systemctl restart <servicename>}; \texttt{systemctl is-enabled <servicename>}
+Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in [systemd_files](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main), and need to be placed in `/etc/systemd/system` on the Raspberry Pi. Then enable the services: `sudo systemctl enable re-rassor-sensors.service`; `sudo systemctl enable re-rassor-controller.service`.
 
 ## User Guide
 ### Prerequisites
@@ -80,7 +75,7 @@ Run    colcon build --packages-select <package\_name>} from the root ROS workspa
 4. Laptop with connected PS4 controller, /ps4_controller_node.py script and associated dependencies downloaded. Enter the IP address of the Pi on line 12.
 5. Raspberry Pi and laptop connected to the same network. The Raspberry Pi should automatically connect to UofA (if available) on startup, but will need to be manually connected to another network if required, e.g. personal hotspot. Note that the device DroneDeploy is running on does not require connection to the same network, but the device that the PS4 controller is connected to does. (But these will often be the same device).
 
-### *Startup & Operating Procedure
+### Startup & Operating Procedure
 1. Turn on RE-RASSOR AUX switch – this just turns on the Pi and sensors.
 2. Verify that sensors are working and visible along with camera feed on the DroneDeploy dashboard.
 3. Turn on RE-RASSOR PWR switch – this enables power delivery to the motors. 
@@ -99,7 +94,7 @@ Below are some tips that may help investigate and fix common issues with operati
 1. The data being published over a topic can be examined by running `ros2 topic echo <topic_name>`
 2. To conduct further testing and make changes to individual components of the system, the relevant systemd services need to be stopped first. To stop a service: `systemctl stop <servicename>`
 3. Use the testing spreadsheet provided in the final report to test against the expected behaviour for the different parts of the system.
-4. Once the system is ready to run as normal, ensure the relevant packages are rebuilt if changes are made: Run `colcon build --packages-select <package\_name>` from the root ROS workspace directory. Then restart the relevant services and confirm they are enabled for the next time the robot starts up: `sudo systemctl restart <servicename>`; `systemctl is-enabled <servicename>`
+4. Once the system is ready to run as normal, ensure the relevant packages are rebuilt if changes are made: Run `colcon build --packages-select <package\_name>` from the root ROS workspace directory. Then restart the relevant services, and confirm they are enabled for the next time the robot starts up: `systemctl is-enabled <servicename>`
 
 ## Recommended Future Work
 This implementation provides a baseline for the recommended future work of the project, with the modular architecture and use of ROS 2 enabling extensibility of the existing codebase. Next steps include implementation of autonomous driving and tooling functionality and simultaneous localization and mapping (SLAM). Integration of the system with a digital simulation tool like [Gazebo](https://gazebosim.org/home) is also recommended to help with this. Implementing a control interface through the DroneDeploy dashboard is also recommended, to allow multiple methods of user control. Consult the final report for further information.
@@ -107,7 +102,7 @@ This implementation provides a baseline for the recommended future work of the p
 ## Authors and Acknowledgement
 Author: Teresa Kelly (teresa.kelly.02@icloud.com)
 
-Original project: Florida Space Institute RE-RASSOR: https://floridaspacegrant.org/program/re-rassor/
+Original project: Florida Space Institute RE-RASSOR - https://floridaspacegrant.org/program/re-rassor/
 
 Project supervisors: David Harvey, Rini Akmeliawati
 
