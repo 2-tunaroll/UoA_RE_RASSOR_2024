@@ -1,7 +1,7 @@
-# Research & Education - Regolith Advanced Surface Systems Operations Robot (RE-RASSOR)
+#  (RE-RASSOR)
 
 **Description:**  
-This repositry contains the source code for the University of Adelaide's 2024 iteration of the RE-RASSOR project. The RE-RASSOR is a small-scale version of a lunar rover, that uses a variety of interchanging tools for excavation and construction.
+This repositry contains the source code for the University of Adelaide's 2024 iteration of the Research & Education - Regolith Advanced Surface Systems Operations Robot (RE-RASSOR) project. The RE-RASSOR is a small-scale version of a lunar rover, that uses a variety of interchanging tools for excavation and construction.
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -15,7 +15,7 @@ This repositry contains the source code for the University of Adelaide's 2024 it
 6. [User Guide](#user-guide)
     - [Prerequisites](#prerequisites)
     - [Startup & Operating Procedure](#startup-&-operating-procedure)
-    - [Troubleshooting](#troubleshooting)
+    - [Troubleshooting Tips](#troubleshooting-tips)
 7. [Recommended Future Work](#recommended-future-work)
 11. [Authors & Acknowledgement](#authors-&-acknowledgement)
 
@@ -67,51 +67,47 @@ Note that the item at address 70 is to be ignored; it is the "all call" address 
 
 
 # Setting Up Services
-Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in /systemd_files, and need to be placed in `/etc/systemd/system` on the Raspberry Pi.
+Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in (/systemd_files), and need to be placed in `/etc/systemd/system` on the Raspberry Pi.
+
+
+
+Run    colcon build --packages-select <package\_name>} from the root ROS workspace directory. Then restart the relevant services and confirm they are enabled for the next time the robot starts up:
+    \texttt{sudo systemctl restart <servicename>}; \texttt{systemctl is-enabled <servicename>}
 
 ## User Guide
 # Prerequisites
-1. RE-RASSOR with all hardware and sufficiently charged 14.8V LiPo battery attached.
+1. Hardware and software configured RE-RASSOR with sufficiently charged 14.8V LiPo battery attached.
 2. Access to the project's DroneDeploy dashboard.
 3. Known IP address of Raspberry Pi. If not known, can open the Shell tab in DroneDeploy and run `hostname -I` to retrieve it.
 4. Laptop with connected PS4 controller, /ps4_controller_node.py script and associated dependencies downloaded. Enter the IP address of the Pi on line 12.
 5. Raspberry Pi and laptop connected to the same network. The Raspberry Pi should automatically connect to UofA (if available) on startup, but will need to be manually connected to another network if required, e.g. personal hotspot. Note that the device DroneDeploy is running on does not require connection to the same network, but the device that the PS4 controller is connected to does. (But these will often be the same device).
 
-# Prerequisites
+# Startup & Operating Procedure
 1. Turn on RE-RASSOR AUX switch – this just turns on the Pi and sensors.
-    \item Verify that sensors are working and visible along with camera feed on the DroneDeploy dashboard.
-    \item Turn on RE-RASSOR PWR switch – this enables power delivery to the motors. 
-    \item On the laptop connected to the PS4 controller, run \href{https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/client_scripts/re_rassor_controller_client.py}{\texttt{re\_rassor\_controller\_client.py}}.
-    \item Wait for connection to be established between the server (Pi) and client (laptop).
-    \item Use the PS4 controller to control the RE-RASSOR as indicated by the diagram in Figure \ref{fig:controller_map_2}. Note that the nodes for the desired components must be running in order to control them. Also note the ‘dead man’s switches’ L2 and R2, which are required as a safety mechanism to be pressed to deliver commands to the wheels, T-joints and tools.
-    \item While operating, continuously monitor the sensors on the dashboard, especially system current and battery voltage. Switch off the main power switch immediately in the case of unexpected/dangerous behaviour. See below for troubleshooting steps.
-\end{enumerate}
+2. Verify that sensors are working and visible along with camera feed on the DroneDeploy dashboard.
+3. Turn on RE-RASSOR PWR switch – this enables power delivery to the motors. 
+4.  On the laptop connected to the PS4 controller, run [re_rassor_controller_client.py](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/client_scripts/re_rassor_controller_client.py).
+5. Wait for connection to be established between the server (Pi) and client (laptop).
+6. Use the PS4 controller to control the RE-RASSOR as indicated by the diagram below. Note that the nodes for the desired components must be running in order to control them. Also note the ‘dead man’s switches’ L2 and R2, which are required as a safety mechanism to be pressed to deliver commands to the wheels, T-joints and tools.
+![RE-RASSOR PS4 controller input mapping](images/ps4_controller_map.png)
+7. While operating, continuously monitor the sensors on the dashboard, especially system current and battery voltage. Switch off the main power switch immediately in the case of unexpected/dangerous behaviour. See below for troubleshooting steps.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{images/CONTROLLER_INPUTS.png}
-    \caption{Diagram of controller button mapping.}
-    \label{fig:controller_map_2}
-\end{figure}
+# Troubleshooting Tips
+Below are some tips that may help investigate and fix common issues with operating the RE-RASSOR. These steps require establishing an SSH connection with the Raspberry Pi. To do this, open a terminal and run `ssh re-rassor@<IP\_ADDRESS>` (find IP address from DroneDeploy shell if unknown). Alternatively, the Raspberry Pi can be connected directly to a monitor, keyboard and mouse to access the graphical user interface.
 
-\textbf{Troubleshooting Tips}\\
-Below are some tips that may help investigate and fix common issues with operating the RE-RASSOR. These steps require establishing an SSH connection with the Raspberry Pi. To do this, open a terminal and run \texttt{ssh re-rassor@<IP\_ADDRESS>} (find IP address from DroneDeploy shell if unknown). Alternatively, the Raspberry Pi can be connected directly to a monitor, keyboard and mouse to access the graphical user interface.
+**Loss of connection to DroneDeploy:** This may require restarting the rocos agent: `sudo systemctl restart rocos-agent`. Also ensure that the robot is connected to the internet.
 
-\textbf{Loss of connection to DroneDeploy}: This may require restarting the rocos agent: \texttt{sudo systemctl restart rocos-agent}. Also ensure that the robot is connected to the internet.
-
-\textbf{ROS topics not publishing / other unexpected behaviour:}
-\begin{itemize}
-    \item The data being published over a topic can be examined by running \texttt{ros2 topic echo <topic\_name>}
-    \item To conduct further testing and make changes to individual components of the system, the relevant systemd services need to be stopped first. The services are \texttt{re-rassor-sensors.service} and \texttt{re-rassor-controller.service}.
-    To stop a service: \texttt{systemctl stop <servicename>}
-    \item Use the testing spreadsheet provided in Figure \ref{fig:blank-testing-template} to test against the expected behaviour for the different parts of the system.
-    \item Once the system is ready to run as normal, ensure the relevant packages are rebuilt if changes are made: Run \texttt{colcon build --packages-select <package\_name>} from the root ROS workspace directory. Then restart the relevant services and confirm they are enabled for the next time the robot starts up:
-    \texttt{sudo systemctl restart <servicename>}; \texttt{systemctl is-enabled <servicename>}
+**ROS topics not publishing / other unexpected behaviour:**
+1. The data being published over a topic can be examined by running `ros2 topic echo <topic_name>`
+2. To conduct further testing and make changes to individual components of the system, the relevant systemd services need to be stopped first. To stop a service: `systemctl stop <servicename>`
+3. Use the testing spreadsheet provided in the final report to test against the expected behaviour for the different parts of the system.
+4. Once the system is ready to run as normal, ensure the relevant packages are rebuilt if changes are made: Run `colcon build --packages-select <package\_name>` from the root ROS workspace directory. Then restart the relevant services and confirm they are enabled for the next time the robot starts up: `sudo systemctl restart <servicename>`; `systemctl is-enabled <servicename>`
 
 ## Recommended Future Work
 This implementation provides a baseline for the recommended future work of the project, with the modular architecture and use of ROS 2 enabling extensibility of the existing codebase. Next steps include implementation of autonomous driving and tooling functionality and simultaneous localization and mapping (SLAM). Integration of the system with a digital simulation tool like [Gazebo](https://gazebosim.org/home) is also recommended to help with this. Implementing a control interface through the DroneDeploy dashboard is also recommended, to allow multiple methods of user control. Consult the final report for further information.
 
 ## Authors and Acknowledgement
 Author: Teresa Kelly (teresa.kelly.02@icloud.com)
+Original project: Florida Space Institute RE-RASSOR: https://floridaspacegrant.org/program/re-rassor/
 Project supervisors: David Harvey, Rini Akmeliawati
 Special thanks: William Foster-Hall
