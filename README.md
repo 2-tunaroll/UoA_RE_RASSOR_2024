@@ -27,6 +27,8 @@ Established by the Florida Space Institute, the RE-RASSOR program involves inter
 ## Features
 - List the main features of your project.
 
+  
+
 ## System Requirements
 - **Hardware:** Raspberry Pi 5, with the required hardware and battery attached and configuration mentioned below, PS4 controller, external laptop client.
 - **Software:** Ubuntu 24.04, ROS 2 Jazzy Jalisco, Python 3.12 (on Raspberry Pi and external laptop).
@@ -35,22 +37,11 @@ Established by the Florida Space Institute, the RE-RASSOR program involves inter
 The following configuration of the Raspbery Pi 5 is required for the software to run and connect to the DroneDeploy user interface. Note that while all of these items must be completed, they don't need to be implemented in the listed order.
 1. Install Ubuntu 24.04: [URL]https://ubuntu.com/download/raspberry-pi
 2. Edit the EEPROM configuration: 'sudo -E rpi-eeprom-config -edit'. Add the following line to enable 5A current draw from the power supply: 'PSU_MAX_CURRENT = 5000'
-3. Consult the following instructions to configure the Raspberry Pi serial port: [URL]https://forums.raspberrypi.com/viewtopic.php?t=362821 [URL]https://github.com/nasa-jpl/osr-rover-code/blob/foxy-devel/setup/rpi.md/#5-setting-up-serial-communication-on-the-rpi. This involves adding the following line to '/boot/firmware/config.txt': 'dtparam=uart0'
-4. Use the following instructions to change the 'raspi-config' to enable 1-wire interface and I2C: [URL]https://www.raspberrypi.com/documentation/computers/configuration.html
+3. Consult the following instructions to configure the Raspberry Pi serial port: https://forums.raspberrypi.com/viewtopic.php?t=36282z. https://github.com/nasa-jpl/osr-rover-code/blob/foxy-devel/setup/rpi.md/#5-setting-up-serial-communication-on-the-rpi. This involves adding the following line to '/boot/firmware/config.txt': 'dtparam=uart0'
+4. Use the following instructions to change the 'raspi-config' to enable 1-wire interface and I2C: https://www.raspberrypi.com/documentation/computers/configuration.html
 5. Ensure that the connected I2C devices are detected on the system by reviewing the output from 'i2cdetect -y 1'. It should match this:
-
-
-
-7.
-8. Figure \ref{fig:i2cdetect} shows the desired output, and Table \ref{tab:i2c-addresses} shows the allocation of I2C addresses to system components. Note that the item at address 70 is to be ignored; it is the "all call" address for the controller chips on the Adafruit HATs.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\linewidth]{images/i2cdetect.png}
-    \caption{Raspberry Pi terminal output of connected I2C devices.}
-    \label{fig:i2cdetect}
-\end{figure}
-
+![Expected output of 'i2cdetect -y 1'](images/i2cdetect.png)
+Note that the item at address 70 is to be ignored; it is the "all call" address for the controller chips on the Adafruit HATs.
 
 \begin{tabularx}{\textwidth}{|p{0.4\textwidth} p{0.2\textwidth}|}
 \caption{I2C devices and their addresses.}
