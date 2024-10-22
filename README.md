@@ -43,7 +43,7 @@ If this is the first time using ROS, it is recommended to take some time to read
 Note that the item at address 70 is to be ignored; it is the "all call" address for the controller chips on the Adafruit HATs.
 
 8. Create a ROS 2 workspace named `ros2_ws` and clone the `src` directory of the RE-RASSOR repository into it: The root directory of the workspace is where the packages will be built from.
-9. Install the repository’s dependencies: \url{https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/requirements.txt}
+9. Install the repository’s dependencies: https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/requirements.txt
 10. Add the following lines to `~/.bashrc`. This enables sourcing of the ROS 2 installation and newly built packages any time a new terminal is opened, or by running `source \~/.bashrc`. Note: Change the file paths if they are different to what is specified here.
 
 ``` bash
