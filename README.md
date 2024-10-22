@@ -106,6 +106,9 @@ This implementation provides a baseline for the recommended future work of the p
 
 ## Authors and Acknowledgement
 Author: Teresa Kelly (teresa.kelly.02@icloud.com)
+
 Original project: Florida Space Institute RE-RASSOR: https://floridaspacegrant.org/program/re-rassor/
+
 Project supervisors: David Harvey, Rini Akmeliawati
+
 Special thanks: William Foster-Hall
