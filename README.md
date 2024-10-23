@@ -90,7 +90,7 @@ Once it is verified that all nodes run as expected, systemd service files can be
 7. While operating, continuously monitor the sensors on the dashboard, especially system current and battery voltage. Switch off the main power switch immediately in the case of unexpected/dangerous behaviour. See below for troubleshooting steps.
 
 ### Troubleshooting Tips
-Below are some tips that may help investigate and fix common issues with operating the RE-RASSOR. These steps require establishing an SSH connection with the Raspberry Pi. To do this, open a terminal and run `ssh re-rassor@<IP\_ADDRESS>` (find IP address from DroneDeploy shell if unknown). Alternatively, the Raspberry Pi can be connected directly to a monitor, keyboard and mouse to access the graphical user interface.
+Below are some tips that may help investigate and fix common issues with operating the RE-RASSOR. These steps require establishing an SSH connection with the Raspberry Pi. To do this, open a terminal and run `ssh re-rassor@<IP_ADDRESS>` (find IP address from DroneDeploy shell if unknown). Alternatively, the Raspberry Pi can be connected directly to a monitor, keyboard and mouse to access the graphical user interface.
 
 **Loss of connection to DroneDeploy:** This may require restarting the rocos agent: `sudo systemctl restart rocos-agent`. Also ensure that the robot is connected to the internet.
 
