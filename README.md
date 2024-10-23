@@ -6,19 +6,17 @@ This repositry contains the source code for the University of Adelaide's 2024 it
 2. [Architecture](#architecture)
 3. [System Requirements](#system-requirements)
 4. [Raspberry Pi Configuration](#raspberry-pi-configuration)
-5. [Installation & Usage](#installation-&-usage)
-    - [Dependencies](#dependencies)
-    - [Building the Project](#building-the-project)
-    - [Setting Up Services](#setting-up-services)
-6. [User Guide](#user-guide)
+5. [Building the Project](#building-the-project)
+6. [Setting Up Services](#setting-up-services)
+7. [User Guide](#user-guide)
     - [Prerequisites](#prerequisites)
     - [Startup & Operating Procedure](#startup-&-operating-procedure)
     - [Troubleshooting Tips](#troubleshooting-tips)
-7. [Recommended Future Work](#recommended-future-work)
-11. [Authors & Acknowledgement](#authors-&-acknowledgement)
+8. [Recommended Future Work](#recommended-future-work)
+9. [Authors & Acknowledgement](#authors-&-acknowledgement)
 
 ## Introduction
-Established by the Florida Space Institute, the RE-RASSOR program involves international collaboration between universities, aiming to constantly bring new research and improvements to the platform. This project builds upon the work of the University of Adelaide’s 2022 and 2023 teams, and aims to improve the rover's design, functionality and performance. The 2024 project saw significant changes implemented to the actuator control systems of the rover, and hence significant changes to the software. The aims of the software component of the project were to develop enhanced software systems for user control and feedback, through developing a modular system with a physical control interface and a graphical user interface, with integrated sensor feedback. The software uses [ROS](https://www.ros.org/), a set of libraries and tools for building modular robot applications. The code is designed to be used in conjunction with the graphical user interace, which can be found [here](https://automate.dronedeploy.com/project/re-rassor-426007/robots/re-rassor/dashboard/247aca40-efda-11ee-a929-eb3f2ba3f8ad). Contact Teresa Kelly or the project supervisor for the login details.
+Established by the Florida Space Institute, the RE-RASSOR program involves international collaboration between universities, aiming to constantly bring new research and improvements to the platform. This project builds upon the work of the University of Adelaide’s 2022 and 2023 teams, and aims to improve the rover's design, functionality and performance. The 2024 project saw significant changes implemented to the actuator control systems of the rover, and hence significant changes to the software. The aims of the software component of the project were to develop enhanced software systems for user control and feedback, through developing a modular system with a physical control interface and a graphical user interface, with integrated sensor feedback. The software uses [ROS 2](https://www.ros.org/), a set of libraries and tools for building modular robot applications. The code is designed to be used in conjunction with the graphical user interace, which can be found [here](https://automate.dronedeploy.com/project/re-rassor-426007/robots/re-rassor/dashboard/247aca40-efda-11ee-a929-eb3f2ba3f8ad). Contact Teresa Kelly or the project supervisor for the login details.
 
 ## Architecture
 The software architecture is shown in the diagram below. The codebase is made up of two ROS packages: one for the control nodes, and one for the sensor nodes. The control inputs are sent via a PS4 controller connected to the client laptop, over a socket connection with the Raspberry Pi. The controller state is sent to the various nodes for controlling the RE-RASSOR, while feedback is published from the sensors to the GUI.
@@ -44,9 +42,16 @@ If this is the first time using ROS, it is recommended to take some time to read
 
 Note that the item at address 70 is to be ignored; it is the "all call" address for the controller chips on the Adafruit HATs.
 
-8. Create a ROS 2 workspace named `ros2_ws` and clone the `src` directory of the RE-RASSOR repository into it: The root directory of the workspace is where the packages will be built from.
-9. Install the repository’s dependencies: https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/requirements.txt
-10. Add the following lines to `~/.bashrc`. This enables sourcing of the ROS 2 installation and newly built packages any time a new terminal is opened, or by running `source \~/.bashrc`. Note: Change the file paths if they are different to what is specified here.
+11. Install the rocos-agent for DroneDeploy and enable it as a service using the following instructions: https://docs-automate.dronedeploy.com/robotics-toolkit/getting-started/connect-your-own-robot/ubuntu. Note: Create an unstable build if the plugin for ROS 2 Jazzy is not yet available.
+12. Install the ROS2 plugin for DroneDeploy: https://docs-automate.dronedeploy.com/robotics-toolkit/agent-plugins/ros2}. Contact DroneDeploy to retrieve a custom build for ROS 2 Jazzy if not yet available.
+13. Install GStreamer to enable camera streaming to DroneDeploy: https://gstreamer.freedesktop.org/download/#linux
+
+## Building the Project
+### Installation & Dependencies
+These steps require the Raspberry Pi Configuration to be complete first, and a base understanding of [ROS 2](https://www.ros.org/).
+1. Create a ROS 2 workspace named `ros2_ws` and clone the `src` directory of the RE-RASSOR repository into it: The root directory of the workspace is where the packages will be built from.
+2. Install the repository’s dependencies: https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/requirements.txt
+3. Add the following lines to `~/.bashrc`. This enables sourcing of the ROS 2 installation and newly built packages any time a new terminal is opened, or by running `source ~/.bashrc`. Note: Change the file paths if they are different to what is specified here.
 
 ``` bash
     source /opt/ros/jazzy/setup.bash
@@ -54,19 +59,15 @@ Note that the item at address 70 is to be ignored; it is the "all call" address 
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/ros/jazzy/lib
     export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ```
-11. Install the rocos-agent for DroneDeploy and enable it as a service using the following instructions: https://docs-automate.dronedeploy.com/robotics-toolkit/getting-started/connect-your-own-robot/ubuntu. Note: Create an unstable build if the plugin for ROS 2 Jazzy is not yet available.
-12. Install the ROS2 plugin for DroneDeploy: https://docs-automate.dronedeploy.com/robotics-toolkit/agent-plugins/ros2}. Contact DroneDeploy to retrieve a custom build for ROS 2 Jazzy if not yet available.
-13. Install GStreamer to enable camera streaming to DroneDeploy: https://gstreamer.freedesktop.org/download/#linux
 
-## Building the Project
-### Dependencies
-
-
-### Building the Project
+### Building & Running the Project
+1. From the `ros2_ws` root directory, run `colcon build` to build all of the project's packages. Packages can also be build individually after making changes using `colcon build --oackages-select <package-name>`.
+2. `source ~/.bashrc` in any terminals that were already opened before building.
+3. To run a node, run `ros2 run <package-name> <node-name>`. To view the data being published over a topic, open a new terminal and run `ros2 topic echo <topic-name>`. Note that every time a `ros2` command is run, it needs to be done in a separate terminal so previously executed commands keep running. See the ROS tutorials for more information.
+4. To run the whole system, follow steps 1-5 of the [User Guide](#user-guide) to connect the client (laptop) and server (Pi), then run the required nodes/launch files on the Pi.
 
 ### Setting Up Services
 Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in [systemd_files](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main), and need to be placed in `/etc/systemd/system` on the Raspberry Pi. Then enable the services: `sudo systemctl enable re-rassor-sensors.service`; `sudo systemctl enable re-rassor-controller.service`.
-
 
 ## User Guide
 ### Prerequisites
@@ -95,7 +96,7 @@ Below are some tips that may help investigate and fix common issues with operati
 1. The data being published over a topic can be examined by running `ros2 topic echo <topic_name>`
 2. To conduct further testing and make changes to individual components of the system, the relevant systemd services need to be stopped first. To stop a service: `systemctl stop <servicename>`
 3. Use the testing spreadsheet provided in the final report to test against the expected behaviour for the different parts of the system.
-4. Once the system is ready to run as normal, ensure the relevant packages are rebuilt if changes are made: Run `colcon build --packages-select <package\_name>` from the root ROS workspace directory. Then restart the relevant services, and confirm they are enabled for the next time the robot starts up: `systemctl is-enabled <servicename>`
+4. Once the system is ready to run as normal, ensure the relevant packages are rebuilt if changes are made: Run `colcon build --packages-select <package-name>` from the root ROS workspace directory. Then restart the relevant services, and confirm they are enabled for the next time the robot starts up: `systemctl is-enabled <service-name>`
 
 ## Recommended Future Work
 This implementation provides a baseline for the recommended future work of the project, with the modular architecture and use of ROS 2 enabling extensibility of the existing codebase. Next steps include implementation of autonomous driving and tooling functionality and simultaneous localization and mapping (SLAM). Integration of the system with a digital simulation tool like [Gazebo](https://gazebosim.org/home) is also recommended to help with this. Implementing a control interface through the DroneDeploy dashboard is also recommended, to allow multiple methods of user control. Consult the final report for further information.
