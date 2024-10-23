@@ -21,8 +21,9 @@ This repositry contains the source code for the University of Adelaide's 2024 it
 Established by the Florida Space Institute, the RE-RASSOR program involves international collaboration between universities, aiming to constantly bring new research and improvements to the platform. This project builds upon the work of the University of Adelaide’s 2022 and 2023 teams, and aims to improve the rover's design, functionality and performance. The 2024 project saw significant changes implemented to the actuator control systems of the rover, and hence significant changes to the software. The aims of the software component of the project were to develop enhanced software systems for user control and feedback, through developing a modular system with a physical control interface and a graphical user interface, with integrated sensor feedback. The software uses [ROS](https://www.ros.org/), a set of libraries and tools for building modular robot applications. The code is designed to be used in conjunction with the graphical user interace, which can be found [here](https://automate.dronedeploy.com/project/re-rassor-426007/robots/re-rassor/dashboard/247aca40-efda-11ee-a929-eb3f2ba3f8ad). Contact Teresa Kelly or the project supervisor for the login details.
 
 ## Architecture
-- List the main features of your project.
-![Software architecture diagram](images/Software_architecture.png)
+The software architecture is shown in the diagram below. The codebase is made up of two ROS packages: one for the control nodes, and one for the sensor nodes. The control inputs are sent via a PS4 controller connected to the client laptop, over a socket connection with the Raspberry Pi. The controller state is sent to the various nodes for controlling the RE-RASSOR, while feedback is published from the sensors to the GUI.
+![Sofware architecture diagram](images/Software_architecture.png)
+
 
 ## System Requirements
 - **Hardware:** Raspberry Pi 5, with the required hardware and battery attached and configuration mentioned below, PS4 controller, external laptop client.
