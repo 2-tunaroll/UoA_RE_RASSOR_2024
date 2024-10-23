@@ -61,7 +61,7 @@ These steps require the Raspberry Pi Configuration to be complete first, and a b
 ```
 
 ### Building & Running the Project
-1. From the `ros2_ws` root directory, run `colcon build` to build all of the project's packages. Packages can also be build individually after making changes using `colcon build --oackages-select <package-name>`.
+1. From the `ros2_ws` root directory, run `colcon build` to build all of the project's packages. Packages can also be build individually after making changes using `colcon build --packages-select <package-name>`.
 2. `source ~/.bashrc` in any terminals that were already opened before building.
 3. To run a node, run `ros2 run <package-name> <node-name>`. To view the data being published over a topic, open a new terminal and run `ros2 topic echo <topic-name>`. Note that every time a `ros2` command is run, it needs to be done in a separate terminal so previously executed commands keep running. See the ROS tutorials for more information.
 4. To run the whole system, follow steps 1-5 of the [Startup & Operating Procedure](#startup-&-operating-procedure) to connect the client (laptop) and server (Pi), then run the required nodes/launch files on the Pi.
