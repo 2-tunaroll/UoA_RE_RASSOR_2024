@@ -4,20 +4,16 @@ PS4 controller node.
 Establishes the client-server connection, gets controller inputs,
 and publishes ROS topics based on those inputs.
 """
-import json
 import socket
-import time
-
-from custom_msgs.msg import BucketDrum, Interchange, TJoint
-from geometry_msgs.msg import Twist
-
 import rclpy
 from rclpy.node import Node
-
+from std_msgs.msg import String, Int16, Float32
+import time
+from geometry_msgs.msg import Twist
+import json
 import re_rassor_controller.lib.controller_input_defs as inputs
 
-from std_msgs.msg import Float32, Int16, String
-
+from custom_msgs.msg import TJoint, BucketDrum, Interchange
 
 class ControllerCommandPublisher(Node):
     """Receives controller commands, converts them to topics and publishes them."""
@@ -25,22 +21,21 @@ class ControllerCommandPublisher(Node):
     def __init__(self):
 
         super().__init__('controller_command_publisher')
-
-        # ROS topics to publish from the controller inputs
+        
         self.controller_state_publisher_ = self.create_publisher(String, 'controller_state', 100)
+
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
         self.t_joint_publisher_ = self.create_publisher(TJoint, 't_joint_cmd', 100)
         self.bucket_drum_publisher_ = self.create_publisher(BucketDrum, 'bucket_drum_cmd', 100)
-        self.tool_interchange_publisher_ = self.create_publisher(Interchange,
-                                                                 'tool_interchange_cmd', 10)
+        self.tool_interchange_publisher_ = self.create_publisher(Interchange, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
 
         # set default speed multiplier to 25%
         self.prev_speed_multiplier = 0.25
-        # set debounce time and last pressed time for button presses
-        self.debounce_time = 0.5  # seconds
-        self.circle_last_pressed_time = 0
+        # set debounce time for button presses
+        self.debounce_time = 0.5 # seconds
+        self.circle_last_pressed_time = 0 
         self.square_last_pressed_time = 0
         self.cross_last_pressed_time = 0
 
@@ -55,11 +50,9 @@ class ControllerCommandPublisher(Node):
         self.t_joint_msg = TJoint()
         self.t_joint_msg.t_joint.data = 'FRONT'
 
-        # get controller input
         self.receive_data()
 
     def receive_data(self):
-        """Listen for the client, receive controller inputs and convert them to ROS messages."""
         # Set the IP address and port for the server
         server_ip = '0.0.0.0'  # Listen on all available network interfaces
         server_port = 8000  # Choose a port number that is not in use
@@ -90,7 +83,7 @@ class ControllerCommandPublisher(Node):
                                     controller_msg = String()
                                     controller_msg.data = msg_data
                                     self.controller_state_publisher_.publish(controller_msg)
-
+                                    
                                     data_array = json.loads(msg_data)
 
                                     # convert raw json strings to meaningful commands
@@ -104,7 +97,7 @@ class ControllerCommandPublisher(Node):
                     self.get_logger().error(f'Unexpected error: {e}')
 
     def extract_json(self, buffer):
-        """Extract and return a complete JSON string from the buffer."""
+        """Extracts and returns a complete JSON string from the buffer."""
         parts = buffer.split(b'\n', 1)
         if len(parts) > 1:
             complete_json = parts[0].decode('utf-8').strip()
@@ -112,12 +105,14 @@ class ControllerCommandPublisher(Node):
             return complete_json, remaining_buffer
         else:
             return None, buffer
-
+        
     def get_driving_commands(self, data):
         """Process and publish commands for driving."""
         # set the speed multiplier for driving the wheels
         speed_mode_msg = Float32()
-
+        
+        # self.prev_speed_multiplier
+    
         if data['buttons'][inputs.SHARE] == 1:
             speed_mode_msg.data = 0.25
             self.prev_speed_multiplier = 0.25
@@ -125,8 +120,8 @@ class ControllerCommandPublisher(Node):
             speed_mode_msg.data = 0.50
             self.prev_speed_multiplier = 0.50
         elif data['buttons'][inputs.OPTIONS] == 1:
-            speed_mode_msg.data = 1.0
-            self.prev_speed_multiplier = 1.0
+            speed_mode_msg.data = 0.75
+            self.prev_speed_multiplier = 0.75
         else:
             # if no selection keep the previous speed multiplier
             speed_mode_msg.data = self.prev_speed_multiplier
@@ -149,15 +144,13 @@ class ControllerCommandPublisher(Node):
     def get_t_joint_commands(self, data):
         """Process and publish commands for the t-joints."""
         current_time = time.time()
-        debounce_time = 0.5  # seconds
+        debounce_time = 0.5 # seconds
 
         # toggle between t-joints
         if data['buttons'][inputs.CIRCLE] == 1:
 
             # Only toggle if the button wasn't previously pressed
-            if not (self.circle_button_pressed and
-                    (current_time - self.circle_last_pressed_time > debounce_time)):
-
+            if not self.circle_button_pressed and (current_time - self.circle_last_pressed_time > debounce_time):
                 self.circle_last_pressed_time = current_time
 
                 # Toggle the state
@@ -175,33 +168,31 @@ class ControllerCommandPublisher(Node):
             self.circle_button_pressed = False
 
         # must be pressing L2 and R2 to deliver power
-        if (data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and
-                data['axes'][inputs.LEFT_TRIGGER] > 0.95):
-
+        if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
+            
             # only publish up or down at one time
             if self.t_joint_msg.down != 1:
-                self.t_joint_msg.up = data['buttons'][inputs.R1]  # up
+                self.t_joint_msg.up = data['buttons'][inputs.R1] # up
 
             if self.t_joint_msg.up != 1:
-                self.t_joint_msg.down = data['buttons'][inputs.L1]  # down
+                self.t_joint_msg.down = data['buttons'][inputs.L1] # down
 
         else:
             self.t_joint_msg.up = 0
             self.t_joint_msg.down = 0
-
+        
         self.t_joint_publisher_.publish(self.t_joint_msg)
-
+        
     def get_tool_commands(self, data):
-        """Process and publish commands for powered tools and tool interchange."""
+        """Process and publish commands for powered tools and tool interchange."""        
         current_time = time.time()
-        debounce_time = 0.2  # seconds
-
+        debounce_time = 0.2 # seconds
+        
         vibrating_motor_msg = Int16()
         bucket_drum_msg = BucketDrum()
 
         # Toggle the mode of the interchange between manual and autonomous
-        if ((data['buttons'][inputs.SQUARE] == 1) and
-                (current_time - self.square_last_pressed_time > debounce_time)):
+        if (data['buttons'][inputs.SQUARE] == 1) and (current_time - self.square_last_pressed_time > debounce_time):
 
             self.square_last_pressed_time = current_time
 
@@ -219,29 +210,26 @@ class ControllerCommandPublisher(Node):
             self.square_button_pressed = False
 
         # Enable/disable the interchange
-        if ((data['buttons'][inputs.CROSS] == 1) and
-                (current_time - self.cross_last_pressed_time > debounce_time)):
-
+        if (data['buttons'][inputs.CROSS] == 1) and (current_time - self.cross_last_pressed_time > debounce_time):
             self.tool_interchange_msg.toggle = 1
             self.cross_last_pressed_time = current_time
         else:
-            self.tool_interchange_msg.toggle = 0
+            self.tool_interchange_msg.toggle = 0        
 
         # TOOLS
         # must be pressing L2 and R2 to deliver power
-        if (data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and
-                data['axes'][inputs.LEFT_TRIGGER] > 0.95):
-
+        if data['axes'][inputs.RIGHT_TRIGGER] > 0.95 and data['axes'][inputs.LEFT_TRIGGER] > 0.95:
+            
             # Bucket drum
             # only publish forward or back at one time
             if bucket_drum_msg.backward != 1:
                 # print(Int16(data['buttons'][inputs.UP]))
-                bucket_drum_msg.forward = data['buttons'][inputs.UP]  # forward
+                bucket_drum_msg.forward = data['buttons'][inputs.UP] # forward
                 # print(bucket_drum_msg.forward)
 
             if bucket_drum_msg.forward != 1:
-                bucket_drum_msg.backward = data['buttons'][inputs.DOWN]  # backward
-
+                bucket_drum_msg.backward = data['buttons'][inputs.DOWN] # backward
+            
             # Vibrating motor
             vibrating_motor_msg.data = data['buttons'][inputs.TRIANGLE]
 
@@ -249,17 +237,15 @@ class ControllerCommandPublisher(Node):
         self.bucket_drum_publisher_.publish(bucket_drum_msg)
         self.tool_interchange_publisher_.publish(self.tool_interchange_msg)
         self.vibrating_motor_publisher_.publish(vibrating_motor_msg)
-
-
+           
 def main(args=None):
     rclpy.init(args=args)
     node = ControllerCommandPublisher()
-
+    
     rclpy.spin(node)
-
+    
     node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

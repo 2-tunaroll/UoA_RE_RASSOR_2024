@@ -1,10 +1,8 @@
-import time
-
 import rclpy
 from rclpy.node import Node
-from re_rassor_sensors.lib.DFRobot_LIS2DW12 import DFRobot_LIS2DW12_I2C
 from sensor_msgs.msg import Imu
-
+import time
+from re_rassor_sensors.lib.DFRobot_LIS2DW12 import DFRobot_LIS2DW12_I2C
 
 class AccelerometerNode(Node):
     def __init__(self):
@@ -47,7 +45,7 @@ class AccelerometerNode(Node):
         bias_y = (sum_y / num_samples) * 9.81 / 1000
         bias_z = (sum_z / num_samples) * 9.81 / 1000
 
-        self.get_logger().info(f'Calibration complete: Bias X={bias_x}, Y={bias_y}, Z={bias_z}')
+        self.get_logger().info(f"Calibration complete: Bias X={bias_x}, Y={bias_y}, Z={bias_z}")
         return bias_x, bias_y, bias_z
 
     def publish_acceleration(self):
@@ -81,7 +79,6 @@ class AccelerometerNode(Node):
 
         self.publisher_.publish(imu_msg)
 
-
 def main(args=None):
     rclpy.init(args=args)
     node = AccelerometerNode()
@@ -93,7 +90,6 @@ def main(args=None):
 
     node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
