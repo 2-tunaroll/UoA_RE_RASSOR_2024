@@ -67,7 +67,7 @@ These steps require the Raspberry Pi Configuration to be complete first, and a b
 4. To run the whole system, follow steps 1-5 of the [Startup & Operating Procedure](#startup-&-operating-procedure) to connect the client (laptop) and server (Pi), then run the required nodes/launch files on the Pi.
 
 ### Setting Up Services
-Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in [systemd_files](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main), and need to be placed in `/etc/systemd/system` on the Raspberry Pi. Then enable the services: `sudo systemctl enable re-rassor-sensors.service`; `sudo systemctl enable re-rassor-controller.service`.
+Once it is verified that all nodes run as expected, systemd service files can be enabled to run the launch files on startup. These files are located in [systemd_scripts](https://github.com/2-tunaroll/UoA_RE_RASSOR_2024/blob/main/systemd_scripts), and need to be placed in `/etc/systemd/system` on the Raspberry Pi. Then enable the services: `sudo systemctl enable re-rassor-sensors.service`; `sudo systemctl enable re-rassor-controller.service`.
 
 ## User Guide
 ### Prerequisites
