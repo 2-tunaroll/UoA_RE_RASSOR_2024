@@ -21,7 +21,7 @@ class ControllerCommandPublisher(Node):
     def __init__(self):
 
         super().__init__('controller_command_publisher')
-        
+        # ROS topics to publish from the controller inputs        
         self.controller_state_publisher_ = self.create_publisher(String, 'controller_state', 100)
 
         self.velocity_publisher_ = self.create_publisher(Twist, 'cmd_vel', 100)
