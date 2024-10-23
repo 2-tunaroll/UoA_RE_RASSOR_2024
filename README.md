@@ -22,6 +22,7 @@ Established by the Florida Space Institute, the RE-RASSOR program involves inter
 
 ## Architecture
 The software architecture is shown in the diagram below. The codebase is made up of two ROS packages: one for the control nodes, and one for the sensor nodes. The control inputs are sent via a PS4 controller connected to the client laptop, over a socket connection with the Raspberry Pi. The controller state is sent to the various nodes for controlling the RE-RASSOR, while feedback is published from the sensors to the GUI.
+
 ![Sofware architecture diagram](images/Software_architecture.png)
 
 
