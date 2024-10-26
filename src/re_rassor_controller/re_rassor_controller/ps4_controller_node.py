@@ -30,25 +30,43 @@ class ControllerCommandPublisher(Node):
         self.tool_interchange_publisher_ = self.create_publisher(Interchange, 'tool_interchange_cmd', 10)
         self.vibrating_motor_publisher_ = self.create_publisher(Int16, 'vibrating_motor_cmd', 100)
         self.speed_mode_publisher_ = self.create_publisher(Float32, 'speed_mode', 10)
+        self.drive_mode_publisher_ = self.create_publisher(String, 'drive_mode', 10)
+        self.wheel_selection_publisher_ = self.create_publisher(String, 'wheel_selection', 10)
 
         # set default speed multiplier to 25%
         self.prev_speed_multiplier = 0.25
+
         # set debounce time for button presses
         self.debounce_time = 0.5 # seconds
         self.circle_last_pressed_time = 0 
         self.square_last_pressed_time = 0
         self.cross_last_pressed_time = 0
+        self.ps_last_pressed_time = 0
+
+        # speed mode message
+        self.speed_mode_msg = Float32()
+        self.speed_mode_msg.data = 0.10
+
+        # drive mode message
+        self.drive_mode_msg = String()
+        self.drive_mode_msg.data = 'STANDARD'
+  
+        # tool interchange message
+        self.tool_interchange_msg = Interchange()
+        self.tool_interchange_msg.mode.data = 'MANUAL'
+
+        # T-joint message
+        self.t_joint_msg = TJoint()
+        self.t_joint_msg.t_joint.data = 'FRONT'
+
+        # Wheel selection message
+        self.wheel_msg = String()
+        self.wheel_msg.data = 'FRONT'
 
         # set flags for buttons pressed
         self.circle_button_pressed = False
         self.cross_button_pressed = False
         self.square_button_pressed = False
-
-        # create message classes for tool interchange and t-joint
-        self.tool_interchange_msg = Interchange()
-        self.tool_interchange_msg.mode.data = 'MANUAL'
-        self.t_joint_msg = TJoint()
-        self.t_joint_msg.t_joint.data = 'FRONT'
 
         self.receive_data()
 
@@ -108,23 +126,35 @@ class ControllerCommandPublisher(Node):
         
     def get_driving_commands(self, data):
         """Process and publish commands for driving."""
+
         # set the speed multiplier for driving the wheels
-        speed_mode_msg = Float32()
-        
-        # self.prev_speed_multiplier
-    
         if data['buttons'][inputs.SHARE] == 1:
-            speed_mode_msg.data = 0.25
-            self.prev_speed_multiplier = 0.25
+            self.speed_mode_msg.data = 0.10
         elif data['buttons'][inputs.TOUCH_PAD] == 1:
-            speed_mode_msg.data = 0.50
-            self.prev_speed_multiplier = 0.50
+            self.speed_mode_msg.data = 0.20
         elif data['buttons'][inputs.OPTIONS] == 1:
-            speed_mode_msg.data = 0.75
-            self.prev_speed_multiplier = 0.75
-        else:
-            # if no selection keep the previous speed multiplier
-            speed_mode_msg.data = self.prev_speed_multiplier
+            self.speed_mode_msg.data = 0.30
+
+        # set time counter
+        current_time = time.time()
+        debounce_time = 0.5 # seconds
+
+        # Toggle the drive mode between standard and independent
+        if (data['buttons'][inputs.PS] == 1) and (current_time - self.ps_last_pressed_time > debounce_time):
+
+            self.ps_last_pressed_time = current_time
+
+            # toggle the interchange
+            if self.drive_mode_msg.data == 'STANDARD':
+                self.drive_mode_msg.data = 'INDEPENDENT'
+            elif self.drive_mode_msg.data == 'INDEPENDENT':
+                self.drive_mode_msg.data = 'STANDARD'
+
+        # Get the wheel selection (front or back) (relevant for independent mode only)
+        if data['buttons'][inputs.UP] == 1:
+            self.wheel_msg.data = 'FRONT'
+        elif data['buttons'][inputs.DOWN] == 1:
+            self.wheel_msg.data = 'BACK'
 
         # velocity message
         velocity_msg = Twist()
@@ -138,8 +168,14 @@ class ControllerCommandPublisher(Node):
             if (abs(data['axes'][inputs.LEFT_JOY_HORIZONTAL]) > 0.25):
                 velocity_msg.angular.z = data['axes'][inputs.LEFT_JOY_HORIZONTAL]
 
+            # use linear.y for right joystick (it is still linear.x velocity)
+            if (abs(data['axes'][inputs.RIGHT_JOY_VERTICAL]) > 0.25):
+                velocity_msg.linear.y = data['axes'][inputs.RIGHT_JOY_VERTICAL]
+
         self.velocity_publisher_.publish(velocity_msg)
-        self.speed_mode_publisher_.publish(speed_mode_msg)
+        self.speed_mode_publisher_.publish(self.speed_mode_msg)
+        self.drive_mode_publisher_.publish(self.drive_mode_msg)
+        self.wheel_selection_publisher_.publish(self.wheel_msg)
 
     def get_t_joint_commands(self, data):
         """Process and publish commands for the t-joints."""
@@ -224,11 +260,11 @@ class ControllerCommandPublisher(Node):
             # only publish forward or back at one time
             if bucket_drum_msg.backward != 1:
                 # print(Int16(data['buttons'][inputs.UP]))
-                bucket_drum_msg.forward = data['buttons'][inputs.UP] # forward
+                bucket_drum_msg.forward = data['buttons'][inputs.RIGHT] # forward
                 # print(bucket_drum_msg.forward)
 
             if bucket_drum_msg.forward != 1:
-                bucket_drum_msg.backward = data['buttons'][inputs.DOWN] # backward
+                bucket_drum_msg.backward = data['buttons'][inputs.LEFT] # backward
             
             # Vibrating motor
             vibrating_motor_msg.data = data['buttons'][inputs.TRIANGLE]
