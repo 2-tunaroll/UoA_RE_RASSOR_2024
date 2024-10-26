@@ -1,7 +1,6 @@
 from rclpy.node import Node
-from std_msgs.msg import Bool, Float32, Float32MultiArray, Int16MultiArray
+from std_msgs.msg import Bool, Float32, Float32MultiArray, Int16MultiArray, String
 from geometry_msgs.msg import Twist
-from custom_msgs.msg import WheelSpeeds
 import rclpy
 import time
 from math import pi
@@ -21,7 +20,8 @@ class RoboClawMotorDrive(Node):
         # # initialise the boards
         self.roboclaw.Open()
 
-        self.roboclaw.SetM1MaxCurrent(self.addresses[0], 2000)
+        # set max current draw to 7A per motor
+        self.roboclaw.SetM1MaxCurrent(self.addresses[0], 700)
         self.roboclaw.SetM2MaxCurrent(self.addresses[0], 700)
         self.roboclaw.SetM1MaxCurrent(self.addresses[1], 700)
         self.roboclaw.SetM2MaxCurrent(self.addresses[1], 700)
@@ -29,8 +29,11 @@ class RoboClawMotorDrive(Node):
         # shutdown flag
         self.SHUT_DOWN = False
 
-        # speed multiplier: initialise to 25%
-        self.speed_multiplier = 0.25
+        # drive mode
+        self.drive_mode = 'STANDARD'
+
+        # speed multiplier: initialise to 10%
+        self.speed_multiplier = 0.1
 
         # update time
         self.dt = 0.5
@@ -38,32 +41,47 @@ class RoboClawMotorDrive(Node):
         self.last_called_time = time.time()
 
         # subscribe to current sensing command
-        self.subscription_1 = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
-        # subscribe to velocity cmds
-        self.subscription_2 = self.create_subscription(Twist, 'cmd_vel', self.drive_cmd_callback, 10)
+        self.shutdown_subscription_ = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
+        # subscribe to drive mode command
+        self.drive_mode_subscription_ = self.create_subscription(Float32, 'drive_mode', self.drive_mode_callback, 10)
         # subscribe to speed mode
-        self.subscription_3 = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
+        self.speed_mode_subscription_ = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
+        # subscribe to wheel selection command
+        self.wheel_selection_subscription_ = self.create_subscription(String, 'wheel_selection', self.wheel_selection_callback, 10)
+        # subscribe to velocity cmds
+        self.drive_cmd_subscription_ = self.create_subscription(Twist, 'cmd_vel', self.drive_cmd_callback, 10)
 
         # publish wheel speeds
-        # self.speed_publisher_ = self.create_publisher(WheelSpeeds, 'wheel_speeds', 100)
         self.speed_publisher_ = self.create_publisher(Float32MultiArray, 'wheel_speeds', 100)
         self.timer = self.create_timer(1, self.publish_wheel_speeds)
 
         self.current_publisher_ = self.create_publisher(Int16MultiArray, 'motor_currents', 100)
         self.timer = self.create_timer(1, self.publish_motor_currents)
-
+     
     def shutdown_callback(self, msg):
 
         # sets the shutdown flag to true if the current sensing chip detects a current spike
         if msg.data:
             self.SHUT_DOWN = True
 
+    def drive_mode_callback(self, msg):
+
+        # subscribes to the drive mode topic to decide which drive mode to use
+        self.drive_mode = msg.data
+
     def speed_mode_callback(self, msg):
 
         # sets the speed multipler for driving
         self.speed_multiplier = msg.data
 
+    def wheel_selection_callback(self, msg):
+
+        # gets the selected wheel for independent drive mode
+        self.wheel_selection = msg.data
+
     def motor_shutdown(self):
+
+        # sends 0 to each of the motors
         self.roboclaw.ForwardMixed(self.addresses[0], 0)
         self.roboclaw.TurnLeftMixed(self.addresses[0], 0)
         self.roboclaw.ForwardMixed(self.addresses[1], 0)
@@ -71,7 +89,7 @@ class RoboClawMotorDrive(Node):
 
     def drive_cmd_callback(self, msg):
 
-        # chekck shutdown flag
+        # check shutdown flag
         if self.SHUT_DOWN:
             # stop motors
             self.motor_shutdown()
@@ -82,21 +100,64 @@ class RoboClawMotorDrive(Node):
         # only send commands every 0.5 s
         if (current_time - self.last_called_time) > self.dt:
 
-            x_cmd = int(msg.linear.x * 127 * self.speed_multiplier)
-            z_cmd = int(msg.angular.z * 127 * self.speed_multiplier)
+            # call relevant function based on the selected drive mode
+            if self.drive_mode == 'STANDARD':
+
+                # convert the inputs and pass to the drive function:
+                # x_cmd is forward input and z_cmd is turn input
+                x_cmd = int(msg.linear.x * 127 * self.speed_multiplier)
+                z_cmd = int(msg.angular.z * 127 * self.speed_multiplier)
+                self.drive_standard(x_cmd, z_cmd)
+
+            else: # independent mode
+                # convert the inputs and pass to the drive function:
+                # left_cmd is left wheels and right_cmd is right wheels
+                left_cmd = int(msg.linear.x * 127 * self.speed_multiplier)
+                right_cmd = int(msg.linear.y * 127 * self.speed_multiplier)
+                self.drive_independent(left_cmd, right_cmd)
 
             self.last_called_time = time.time()
 
-            for i in self.addresses:
+    def drive_standard(self, x_cmd, z_cmd):
 
-                if x_cmd <= 0: # drive forward (or stop)
-                    self.roboclaw.ForwardMixed(i, abs(x_cmd))
-                else:
-                    self.roboclaw.BackwardMixed(i, abs(x_cmd))
-                if z_cmd <= 0: # turn left
-                    self.roboclaw.TurnLeftMixed(i, abs(z_cmd))
-                else: # turn right
-                    self.roboclaw.TurnRightMixed(i, z_cmd)
+        # Drives the wheels using the RoboClaw functions in standard mode:
+        # front and back wheels are sent the same commands, and the RoboClaw
+        # handles turning
+
+        for i in self.addresses:
+
+            if x_cmd <= 0: # drive forward (or stop)
+                self.roboclaw.ForwardMixed(i, abs(x_cmd))
+            else:
+                self.roboclaw.BackwardMixed(i, abs(x_cmd))
+            if z_cmd <= 0: # turn left
+                self.roboclaw.TurnLeftMixed(i, abs(z_cmd))
+            else: # turn right
+                self.roboclaw.TurnRightMixed(i, z_cmd)
+
+
+    def drive_independent(self, left_cmd, right_cmd):
+
+        # Drives the wheels using the RoboClaw functions in independent wheel
+        # control mode: drives the front or back wheels forward or back (one at a time)
+        # based on controller input
+
+        if self.wheel_selection == 'FRONT':
+            # use front wheels RoboClaw
+            board = self.addresses[0]
+        else: # use back wheels RoboClaw
+            board = self.addresses[1]
+
+        # Drive left wheels
+        if left_cmd <= 0: # drive forward (or stop)
+            self.roboclaw.ForwardM1(board, abs(left_cmd))
+        else:
+            self.roboclaw.BackwardM1(board, abs(left_cmd))
+        # Drive right wheels
+        if right_cmd <= 0: # drive forward (or stop)
+            self.roboclaw.ForwardM2(board, abs(right_cmd))
+        else:
+            self.roboclaw.BackwardM2(board, abs(right_cmd))
 
     def publish_wheel_speeds(self):
 
@@ -117,12 +178,6 @@ class RoboClawMotorDrive(Node):
         print(f"back right: {wheel_speeds_msg.data[3]}")
 
         self.speed_publisher_.publish(wheel_speeds_msg)
-    
-
-        # m1speed = self.roboclaw.ReadSpeedM1(self.addresses[0])
-        # m2speed = self.roboclaw.ReadSpeedM2(self.addresses[0])
-
-        # print(f"m1: {m1speed}, m2: {m2speed}")
 
     def publish_motor_currents(self):
 
