@@ -43,7 +43,7 @@ class RoboClawMotorDrive(Node):
         # subscribe to current sensing command
         self.shutdown_subscription_ = self.create_subscription(Bool, 'shutdown_cmd', self.shutdown_callback, 10)
         # subscribe to drive mode command
-        self.drive_mode_subscription_ = self.create_subscription(Float32, 'drive_mode', self.drive_mode_callback, 10)
+        self.drive_mode_subscription_ = self.create_subscription(String, 'drive_mode', self.drive_mode_callback, 10)
         # subscribe to speed mode
         self.speed_mode_subscription_ = self.create_subscription(Float32, 'speed_mode', self.speed_mode_callback, 10)
         # subscribe to wheel selection command
